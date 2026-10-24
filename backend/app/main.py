@@ -105,6 +105,10 @@ class RegisterInput(BaseModel):
     password: str = Field(min_length=12, max_length=128)
 
 
+class DeleteAccountInput(BaseModel):
+    password: str = Field(min_length=1, max_length=128)
+
+
 class LoginInput(BaseModel):
     email: str = Field(min_length=5, max_length=320)
     password: str = Field(min_length=1, max_length=128)
@@ -246,6 +250,19 @@ def login(request: Request, data: LoginInput, db: Session = Depends(get_db)) -> 
     if not valid_password:
         raise HTTPException(status_code=401, detail="Email or password is incorrect.")
     return TokenOutput(access_token=issue_token(user))
+
+
+
+@app.delete("/api/v1/account", status_code=204)
+def delete_account(data: DeleteAccountInput, user: User = Depends(current_user), db: Session = Depends(get_db)) -> None:
+    try:
+        valid_password = password_hash.verify(user.password_digest, data.password)
+    except (VerifyMismatchError, VerificationError):
+        valid_password = False
+    if not valid_password:
+        raise HTTPException(status_code=401, detail="Password is incorrect.")
+    db.delete(user)
+    db.commit()
 
 
 @app.post("/api/v1/feasibility")
