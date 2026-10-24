@@ -1,8 +1,8 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { Copy, Download, FilePlus2, Trash2 } from 'lucide-react';
+import { Copy, Download, FilePlus2, History, Trash2 } from 'lucide-react';
 import { generatePlan, roomArea, type PlanModel } from '../lib/plan-model';
-import { createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
-import { authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, renameApiProject, type ApiProject } from '../lib/api';
+import { addSnapshot, createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
+import { addApiSnapshot, authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, renameApiProject, type ApiProject } from '../lib/api';
 
 type Props = { width: number; depth: number; bedrooms: number; budget: number; location: string };
 const palette: Record<string, string> = { living: '#dce8df', bedroom: '#e8e1d2', kitchen: '#dbe5ef', bathroom: '#e7dfe9', circulation: '#eeeeea' };
@@ -61,6 +61,16 @@ export default function PlanWorkspace({ width, depth, bedrooms, budget, location
       setNotice('Cloud project renamed.');
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not rename cloud project.'); }
   }
+  async function cloudSnapshot(project: ApiProject) {
+    if (!apiToken || !apiBase || !plan) return;
+    try {
+      const updated = await addApiSnapshot(apiBase, apiToken, project.id, {
+        input: { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, location }, plan,
+      });
+      setCloudProjects(current => current.map(p => p.id === project.id ? updated : p));
+      setNotice(`New version saved to “${project.title}”.`);
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not save a cloud snapshot.'); }
+  }
   async function cloudDuplicate(project: ApiProject) {
     if (!apiToken || !apiBase) return;
     try {
@@ -100,6 +110,13 @@ export default function PlanWorkspace({ width, depth, bedrooms, budget, location
     if (title === null) return;
     try { setProjects(renameProject(p.id, title)); setNotice('Project renamed.'); }
     catch (error) { setNotice(error instanceof Error ? error.message : 'Could not rename project.'); }
+  }
+  function newLocalVersion(p: LocalProject) {
+    if (!plan) return;
+    try {
+      addSnapshot(p.id, { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, location }, plan);
+      setProjects(listProjects()); setNotice(`New version saved to “${p.title}”.`);
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not save a new version.'); }
   }
   function duplicate(p: LocalProject) {
     duplicateProject(p.id); setProjects(listProjects()); setNotice('Project duplicated.');
@@ -156,14 +173,14 @@ export default function PlanWorkspace({ width, depth, bedrooms, budget, location
         {apiBase && apiToken && <div className="cloud-session"><span>Signed in as {email}</span><button className="secondary-button" onClick={() => { setApiToken(null); setCloudProjects([]); setNotice('Signed out.'); }}>Sign out</button></div>}
         {apiToken && (cloudProjects.length ? cloudProjects.map(project => <article className="saved-project" key={project.id}>
           <div><strong>{project.title}</strong><span>{project.snapshots.length} saved version{project.snapshots.length === 1 ? '' : 's'} · Updated {new Date(project.updated_at).toLocaleDateString()}</span></div>
-          <div className="saved-actions"><button onClick={() => cloudRename(project)} aria-label={`Rename cloud project ${project.title}`}>Rename</button><button onClick={() => cloudDuplicate(project)} aria-label={`Duplicate cloud project ${project.title}`}><Copy size={14} /></button><button onClick={() => cloudDelete(project)} aria-label={`Delete cloud project ${project.title}`}><Trash2 size={14} /></button></div>
+          <div className="saved-actions"><button onClick={() => cloudSnapshot(project)} aria-label={`Save new version of ${project.title}`}><History size={14} /></button><button onClick={() => cloudRename(project)} aria-label={`Rename cloud project ${project.title}`}>Rename</button><button onClick={() => cloudDuplicate(project)} aria-label={`Duplicate cloud project ${project.title}`}><Copy size={14} /></button><button onClick={() => cloudDelete(project)} aria-label={`Delete cloud project ${project.title}`}><Trash2 size={14} /></button></div>
         </article>) : <p className="empty-projects">No cloud projects yet. Save a concept while signed in to create one.</p>)}
       </div>
       <div className="saved-projects">
         <div className="saved-heading"><div className="eyebrow">ON THIS DEVICE</div><h3>Saved concepts</h3><p>These are stored in this browser only. They are not synced to an account or server.</p></div>
         {projects.length ? projects.map(project => <article className="saved-project" key={project.id}>
           <div><strong>{project.title}</strong><span>{project.snapshots.length} version{project.snapshots.length === 1 ? '' : 's'} · Updated {new Date(project.updatedAt).toLocaleDateString()}</span></div>
-          <div className="saved-actions"><button aria-label={`Rename ${project.title}`} onClick={() => rename(project)} title="Rename"><span>Rename</span></button><button aria-label={`Duplicate ${project.title}`} onClick={() => duplicate(project)} title="Duplicate"><Copy size={14} /></button><button aria-label={`Delete ${project.title}`} onClick={() => remove(project)} title="Delete"><Trash2 size={14} /></button></div>
+          <div className="saved-actions"><button aria-label={`Save new version of ${project.title}`} onClick={() => newLocalVersion(project)} title="Save new version"><History size={14} /></button><button aria-label={`Rename ${project.title}`} onClick={() => rename(project)} title="Rename"><span>Rename</span></button><button aria-label={`Duplicate ${project.title}`} onClick={() => duplicate(project)} title="Duplicate"><Copy size={14} /></button><button aria-label={`Delete ${project.title}`} onClick={() => remove(project)} title="Delete"><Trash2 size={14} /></button></div>
         </article>) : <p className="empty-projects">No saved concepts yet. Generate a layout and select “Save concept”.</p>}
       </div>
     </div>
