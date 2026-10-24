@@ -118,7 +118,7 @@ export default function App() {
             </div>
             <div className="field">
               <label htmlFor="finish">Finish preference</label>
-              <select id="finish" value={finish} onChange={e => setFinish(e.target.value)}><option value="basic">Simple and functional</option><option value="standard">Comfortable everyday finish</option><option value="premium">Premium finish</option></select>
+              <select id="finish" value={finish} onChange={e => setFinish(e.target.value as FinishLevel)}><option value="basic">Simple and functional</option><option value="standard">Comfortable everyday finish</option><option value="premium">Premium finish</option></select>
             </div>
             {submitted && invalid && <p className="error" role="alert">Please enter a valid budget, plot dimensions, location, and room/floor selection.</p>}
             <button className="primary-button" type="submit">Check my budget <ArrowRight size={17} /></button>
