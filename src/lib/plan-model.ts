@@ -29,7 +29,7 @@ export function generatePlan(input: PlanInput): PlanModel {
   const usableW = building.width;
   const usableD = building.height;
   const corridor = alternative === 'compact' ? 0 : alternative === 'open' ? 0.06 : 0.04;
-  const hallW = usableW * (0.42 + corridor);
+  const hallW = usableW * (0.34 + corridor);
   const privateW = usableW - hallW;
   const rooms: Room[] = [];
   const add = (id: string, name: string, kind: RoomKind, x: number, y: number, w: number, h: number) => {
