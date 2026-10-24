@@ -19,12 +19,12 @@ Only mark tasks complete when the change exists in the repository and verificati
 - [x] T-012 Add accessible input validation.
 - [x] T-013 Implement deterministic feasibility calculator.
 - [x] T-014 Define versioned rate schema.
-- [ ] T-015 Verify Tamil Nadu benchmark sources.
+- [x] T-015 Verify Tamil Nadu benchmark sources; record current reference scope and explicitly retain placeholder rate status.
 - [x] T-016 Render itemized costs and assumptions.
 - [x] T-017 Add budget-supported area range and caveats.
 - [x] T-018 Add calculation unit and edge-case tests.
 - [x] T-019 Add responsive styling.
-- [ ] T-020 Add SEO metadata, sitemap, and robots strategy.
+- [x] T-020 Add SEO metadata, sitemap generation, and robots strategy (absolute sitemap/canonical generated when SITE_URL is configured).
 
 ## Milestone 2 — original structured plans
 - [x] T-021 Define canonical geometry schema.
@@ -63,14 +63,14 @@ Only mark tasks complete when the change exists in the repository and verificati
 
 ## Status as of 2026-10-24 — implementation pass 2
 - Tasks recorded: 47
-- Implemented and documented in repository: 33
-- Remaining or deliberately blocked: 14
+- Implemented and documented in repository: 35
+- Remaining or deliberately blocked: 12
 - Milestones 1–3 now have committed frontend/backend implementations; CI verification of the latest commit is still pending and must be checked before calling the release deploy-ready.
-- Deliberately not complete: T-015 (authoritative, dated Tamil Nadu benchmark verification); T-020 (absolute sitemap URL requires the final production hostname); Milestones 4–5 production/pilot items other than the existing Netlify build configuration.
+- Deliberately not complete: Milestone 4 visualization/quality/pilot tasks and Milestone 5 production-readiness tasks other than the existing Netlify build configuration. A production sitemap and canonical URL are generated only when SITE_URL is set.
 - Current milestone: 1–3 implementation and verification.
 
 ### Evidence added in this pass
-- Milestone 1: versioned rate assumptions, strict calculation input validation, gross plot/floor ceiling, explicit caveats, extended unit tests, metadata and robots policy. Rates remain unverified.
+- Milestone 1: versioned rate assumptions, strict calculation input validation, gross plot/floor ceiling, explicit caveats, extended unit tests, metadata, sitemap/robots build strategy, and dated Tamil Nadu PWD/SOR reference documentation. The app's numeric rates remain unverified placeholders.
 - Milestone 2: canonical feet-based room geometry, deterministic compact/balanced/open alternatives, boundary/overlap validation, dimensioned SVG, room schedule, tests and Markdown concept-brief export.
 - Milestone 3: PostgreSQL-compatible SQLAlchemy schema, Alembic migration, Argon2id password hashes, signed short-lived bearer tokens, owner-scoped project CRUD, immutable numbered snapshots, frontend API client, browser-only project mode, privacy/retention policy and access-control tests.
 - CI: frontend test/build plus Python API tests and Alembic migration execution are configured. Latest run outcome has not yet been verified in this working session.
