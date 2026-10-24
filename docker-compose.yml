@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: juno
+      POSTGRES_USER: juno_local
+      POSTGRES_PASSWORD: juno_local_only_change_for_local_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - juno_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U juno_local -d juno"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://juno_local:juno_local_only_change_for_local_dev@db:5432/juno
+      JWT_SECRET: local-only-development-secret-change-before-deploy-2026
+      REVIEW_ADMIN_TOKEN: local-only-review-token-change-before-deploy
+      FRONTEND_ORIGINS: http://localhost:5173
+      PORT: "8000"
+    ports:
+      - "8000:8000"
+
+volumes:
+  juno_postgres_data:
