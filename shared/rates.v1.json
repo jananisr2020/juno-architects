@@ -2,7 +2,7 @@
   "schema_version": 1,
   "configuration_id": "illustrative-2026-10-v1",
   "region": "Tamil Nadu, India",
-  "effective_date": "2026-10-24",
+  "effective_date": null,
   "checked_date": "2026-10-24",
   "source_status": "unverified-placeholder",
   "source_name": null,
@@ -39,5 +39,6 @@
       "url": "https://tnpwdea.org/files/tn-pwd-13-09-2025-05-44-43-648.pdf",
       "scope": "Rough cost benchmark reference; detailed rate table not transcribed into the app."
     }
-  ]
+  ],
+  "configuration_date": "2026-10-24"
 }
