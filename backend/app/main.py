@@ -56,6 +56,7 @@ class User(Base):
     password_digest: Mapped[str] = mapped_column(String(512))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     projects: Mapped[list["Project"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
+    review_requests: Mapped[list["ProfessionalReviewRequest"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
 
 
 class Project(Base):
@@ -67,6 +68,7 @@ class Project(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     owner: Mapped[User] = relationship(back_populates="projects")
     snapshots: Mapped[list["ProjectSnapshot"]] = relationship(back_populates="project", cascade="all, delete-orphan", order_by="ProjectSnapshot.version")
+    review_requests: Mapped[list["ProfessionalReviewRequest"]] = relationship(back_populates="project", cascade="all, delete-orphan")
 
 
 class ProfessionalReviewRequest(Base):
@@ -79,6 +81,8 @@ class ProfessionalReviewRequest(Base):
     reviewer_note: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    owner: Mapped["User"] = relationship(back_populates="review_requests")
+    project: Mapped["Project"] = relationship(back_populates="review_requests")
 
 
 class ProjectSnapshot(Base):
