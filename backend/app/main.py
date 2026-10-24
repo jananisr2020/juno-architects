@@ -6,7 +6,8 @@ from typing import Any, Generator
 from uuid import uuid4
 
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pwdlib import PasswordHash
 from pydantic import BaseModel, ConfigDict, Field
@@ -122,6 +123,14 @@ class ProjectOutput(BaseModel):
 
 
 app = FastAPI(title="Juno Architects API", version="0.1.0", description="Feasibility and private concept-project API.")
+allowed_origins = [origin.strip() for origin in os.getenv("FRONTEND_ORIGINS", "http://localhost:5173").split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+)
 
 
 @app.on_event("startup")
