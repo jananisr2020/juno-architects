@@ -162,7 +162,7 @@ export default function App() {
         </section>
       )}
 
-      <PlanWorkspace width={Number(width)} depth={Number(depth)} bedrooms={Number(bedrooms)} floors={Number(floors)} budget={Number(budget)} location={location.trim()} finish={finish} />
+      <PlanWorkspace width={Number(width)} depth={Number(depth)} bedrooms={Number(bedrooms)} floors={Number(floors)} budget={Number(budget)} location={location.trim()} finish={finish} buildingType={buildingType} />
 
       <section className="how-section wrap" id="how-it-works">
         <div className="eyebrow">BUILT AROUND YOUR NEEDS</div><h2>From “what can I afford?”<br />to a more confident first step.</h2>
