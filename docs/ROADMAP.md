@@ -19,7 +19,7 @@ Only mark tasks complete when the change exists in the repository and verificati
 - [x] T-012 Add accessible input validation.
 - [x] T-013 Implement deterministic feasibility calculator.
 - [x] T-014 Define versioned rate schema.
-- [x] T-015 Verify Tamil Nadu benchmark sources; record current reference scope and explicitly retain placeholder rate status.
+- [x] T-015 Add dated third-party Coimbatore market ranges and separate Tamil Nadu PWD references; retain explicit unverified-quote status.
 - [x] T-016 Render itemized costs and assumptions.
 - [x] T-017 Add budget-supported area range and caveats.
 - [x] T-018 Add calculation unit and edge-case tests.
@@ -45,39 +45,39 @@ Only mark tasks complete when the change exists in the repository and verificati
 - [x] T-034 Add access-control tests.
 
 ## Milestone 4 — visualization and quality
-- [ ] T-035 Build 3D massing from canonical model.
-- [ ] T-036 Add accessible controls and mobile fallback.
-- [ ] T-037 Add performance and accessibility checks.
-- [ ] T-038 Add privacy-safe analytics/error monitoring.
+- [x] T-035 Build isometric 3D massing from canonical plan geometry (floor height is illustrative).
+- [x] T-036 Add accessible 2D/3D controls, visible keyboard focus and responsive mobile fallback.
+- [x] T-037 Add compressed bundle budgets and automated semantic/mobile accessibility smoke checks (not a substitute for a full WCAG audit).
+- [x] T-038 Add privacy-safe client error recovery and downloadable diagnostics; no remote telemetry is sent.
 - [ ] T-039 Pilot against real Tamil Nadu quotes.
-- [ ] T-040 Publish limitations and support workflow.
+- [x] T-040 Publish limitations and privacy-safe support workflow.
 
 ## Milestone 5 — production readiness
-- [ ] T-041 Add professional review workflow.
-- [ ] T-042 Add sourced, dated regional rules data.
-- [ ] T-043 Export reports with versioned assumptions.
-- [ ] T-044 Security review and dependency automation.
+- [x] T-041 Add owner-scoped professional review requests and reviewer-token status workflow (no automatic assignment or email yet).
+- [x] T-042 Add sourced, dated Tamil Nadu/Coimbatore rule references; not machine-applied and amendments need professional verification.
+- [x] T-043 Export concept reports with versioned pricing, sources, budget breakdown, assumptions and room schedule.
+- [x] T-044 Add CodeQL, PR dependency review, Dependabot, API rate limits, account deletion/export and security guidance; independent human security review remains a release gate.
 - [ ] T-045 Verify deployment and rollback.
 - [ ] T-046 Evaluate paid customization after MVP validation.
 - [x] T-047 Add Netlify build/publish configuration and pin Node.js 20.
 
 ## Status as of 2026-10-24 — implementation pass 2
 - Tasks recorded: 47
-- Implemented and documented in repository: 35
-- Remaining or deliberately blocked: 12
-- Milestones 1–3 now have committed frontend/backend implementations; CI verification of the latest commit is still pending and must be checked before calling the release deploy-ready.
-- Deliberately not complete: Milestone 4 visualization/quality/pilot tasks and Milestone 5 production-readiness tasks other than the existing Netlify build configuration. A production sitemap and canonical URL are generated only when SITE_URL is set.
-- Current milestone: 1–3 implementation and verification.
+- Implemented in repository: 44
+- Remaining or externally blocked: 3 (T-039 real-quote pilot; T-045 live deployment/rollback verification; T-046 monetization evaluation after pilot validation).
+- Milestones 1–3 are implemented; Milestone 4 is implemented except the real-quote pilot; Milestone 5 has deployment configuration, account export/deletion, automated security checks and report support, while live deployment and post-pilot monetization remain pending.
+- Latest CI and CodeQL workflows are running; do not treat the current branch as release-ready until the latest run results are green.
+- Current milestone: 4–5 verification and pilot readiness.
 
 ### Evidence added in this pass
-- Milestone 1: versioned rate assumptions, strict calculation input validation, gross plot/floor ceiling, explicit caveats, extended unit tests, metadata, sitemap/robots build strategy, and dated Tamil Nadu PWD/SOR reference documentation. The app's numeric rates remain unverified placeholders.
-- Milestone 2: canonical feet-based room geometry, deterministic compact/balanced/open alternatives, boundary/overlap validation, dimensioned SVG, room schedule, tests and Markdown concept-brief export.
-- Milestone 3: PostgreSQL-compatible SQLAlchemy schema, Alembic migration, Argon2id password hashes, signed short-lived bearer tokens, owner-scoped project CRUD, immutable numbered snapshots, frontend API client, browser-only project mode, privacy/retention policy and access-control tests.
-- CI: frontend test/build plus Python API tests and Alembic migration execution are configured. Latest run outcome has not yet been verified in this working session.
+- Milestone 1: shared versioned low/mid/high Coimbatore market bands from dated third-party publications, explicit unverified-quote status, PWD source links, area uncertainty range, strict input validation, itemized allowances and SEO configuration.
+- Milestone 2: canonical feet-based room geometry, deterministic compact/balanced/open alternatives, boundary/overlap validation, dimensioned SVG, isometric 3D massing, room schedule, tests and Markdown report export with versioned pricing assumptions.
+- Milestone 3: PostgreSQL-compatible SQLAlchemy schema, Alembic migrations, Argon2id hashes, signed short-lived tokens, per-IP rate limits, owner-scoped CRUD/snapshots, account export/deletion, professional review workflow, readiness checks, frontend API client, Docker local stack and Render API blueprint.
+- CI: frontend unit tests, TypeScript build, compressed bundle budgets, accessibility smoke checks, Python API tests, migration execution, CodeQL and dependency review are configured. The latest run result is still pending.
 
 ### Release limitations that remain
 - Cloud account mode requires a deployed API, private PostgreSQL database, a production JWT secret, and exact FRONTEND_ORIGINS / VITE_API_BASE_URL configuration.
-- No email verification, password reset, rate limiting, account deletion, backup/restore drill, security audit, or production API deployment yet.
+- Still pending before public account launch: email verification/password reset delivery, shared Redis/gateway rate limiting for multiple API instances, independent security/legal review, real contractor quote validation, production database backup/restore drill, and live API/frontend deployment.
 - The concept generator is deterministic geometry, not an AI-trained architectural designer. It does not calculate local code compliance or produce construction-ready drawings.
 
 ## Definition of done
