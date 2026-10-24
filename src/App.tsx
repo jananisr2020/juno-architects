@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ArrowDownRight, ArrowRight, Check, ChevronDown, Compass, House, IndianRupee, MapPin, Ruler, ShieldCheck, Sparkles } from 'lucide-react';
 import { calculateFeasibility, type FinishLevel, type ProjectInput } from './lib/feasibility';
+import PlanWorkspace from './components/PlanWorkspace';
 
 const money = (value: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency', currency: 'INR', maximumFractionDigits: 0,
@@ -148,6 +149,8 @@ export default function App() {
           <button className="secondary-button" onClick={() => { setSubmitted(false); document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' }); }}>Adjust my details <ArrowDownRight size={16} /></button>
         </section>
       )}
+
+      <PlanWorkspace width={Number(width)} depth={Number(depth)} bedrooms={Number(bedrooms)} budget={Number(budget)} location={location.trim()} />
 
       <section className="how-section wrap" id="how-it-works">
         <div className="eyebrow">BUILT AROUND YOUR NEEDS</div><h2>From “what can I afford?”<br />to a more confident first step.</h2>
