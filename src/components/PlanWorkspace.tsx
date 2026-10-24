@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { Copy, Download, FilePlus2, Trash2 } from 'lucide-react';
 import { generatePlan, roomArea, type PlanModel } from '../lib/plan-model';
 import { createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
+import { authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, renameApiProject, type ApiProject } from '../lib/api';
 
 type Props = { width: number; depth: number; bedrooms: number; budget: number; location: string };
 const palette: Record<string, string> = { living: '#dce8df', bedroom: '#e8e1d2', kitchen: '#dbe5ef', bathroom: '#e7dfe9', circulation: '#eeeeea' };
@@ -10,15 +11,69 @@ export default function PlanWorkspace({ width, depth, bedrooms, budget, location
   const [alternative, setAlternative] = useState<PlanModel['metadata']['alternative']>('balanced');
   const [projects, setProjects] = useState<LocalProject[]>(() => listProjects());
   const [notice, setNotice] = useState('');
+  const apiBase = import.meta.env.VITE_API_BASE_URL ?? '';
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [apiToken, setApiToken] = useState<string | null>(null);
+  const [cloudProjects, setCloudProjects] = useState<ApiProject[]>([]);
+  const [apiBusy, setApiBusy] = useState(false);
   const plan = useMemo(() => {
     try { return generatePlan({ plotWidthFt: width, plotDepthFt: depth, bedrooms, alternative }); }
     catch { return null; }
   }, [width, depth, bedrooms, alternative]);
 
-  function save() {
+  async function save() {
     if (!plan) return;
-    createProject({ budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, location }, plan);
-    setProjects(listProjects()); setNotice('Concept saved on this device.');
+    const input = { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, location };
+    createProject(input, plan);
+    setProjects(listProjects());
+    if (apiToken && apiBase) {
+      try {
+        const saved = await createApiProject(apiBase, apiToken, plan.title, { input, plan });
+        setCloudProjects(current => [saved, ...current]);
+        setNotice('Concept saved on this device and to your account.');
+      } catch (error) {
+        setNotice(error instanceof Error ? `Saved locally; cloud save failed: ${error.message}` : 'Saved locally; cloud save failed.');
+      }
+    } else setNotice('Concept saved on this device.');
+  }
+  async function authenticate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!apiBase) return;
+    setApiBusy(true);
+    try {
+      const auth = await authenticateApi(apiBase, authMode, email, password);
+      const list = await listApiProjects(apiBase, auth.access_token);
+      setApiToken(auth.access_token); setCloudProjects(list); setPassword('');
+      setNotice(authMode === 'register' ? 'Account created. Cloud projects are ready.' : 'Signed in. Cloud projects loaded.');
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not connect to the account service.');
+    } finally { setApiBusy(false); }
+  }
+  async function cloudRename(project: ApiProject) {
+    if (!apiToken || !apiBase) return;
+    const title = window.prompt('Enter a new project name', project.title);
+    if (title === null) return;
+    try {
+      const updated = await renameApiProject(apiBase, apiToken, project.id, title);
+      setCloudProjects(current => current.map(p => p.id === project.id ? updated : p));
+      setNotice('Cloud project renamed.');
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not rename cloud project.'); }
+  }
+  async function cloudDuplicate(project: ApiProject) {
+    if (!apiToken || !apiBase) return;
+    try {
+      const copied = await duplicateApiProject(apiBase, apiToken, project.id);
+      setCloudProjects(current => [copied, ...current]); setNotice('Cloud project duplicated.');
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not duplicate cloud project.'); }
+  }
+  async function cloudDelete(project: ApiProject) {
+    if (!apiToken || !apiBase || !window.confirm(`Delete “${project.title}” from your account?`)) return;
+    try {
+      await deleteApiProject(apiBase, apiToken, project.id);
+      setCloudProjects(current => current.filter(p => p.id !== project.id)); setNotice('Cloud project deleted.');
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not delete cloud project.'); }
   }
   function exportBrief() {
     if (!plan) return;
@@ -85,6 +140,25 @@ export default function PlanWorkspace({ width, depth, bedrooms, budget, location
         </aside>
       </div> : <p className="error" role="alert">The selected plot is too small or inputs are invalid for this starter layout. Try at least 16 ft × 18 ft and 1–8 bedrooms.</p>}
       {notice && <p className="project-notice" role="status">{notice}</p>}
+      <div className="cloud-projects">
+        <div className="saved-heading"><div className="eyebrow">OPTIONAL ACCOUNT SYNC</div><h3>Cloud projects</h3>
+          <p>{apiBase ? 'Sign in to save concepts to your private account database. Your token stays in memory for this browser session only.' : 'Account storage is implemented in the API, but no API URL is configured for this frontend yet. Set VITE_API_BASE_URL when deploying the API and frontend.'}</p>
+        </div>
+        {apiBase && !apiToken && <form className="account-form" onSubmit={authenticate}>
+          <div className="plan-toolbar" role="group" aria-label="Account action">
+            <button type="button" className={authMode === 'register' ? 'plan-tab active' : 'plan-tab'} onClick={() => setAuthMode('register')}>Create account</button>
+            <button type="button" className={authMode === 'login' ? 'plan-tab active' : 'plan-tab'} onClick={() => setAuthMode('login')}>Sign in</button>
+          </div>
+          <label htmlFor="account-email">Email</label><input id="account-email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} />
+          <label htmlFor="account-password">Password (minimum 12 characters for new accounts)</label><input id="account-password" type="password" autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} minLength={authMode === 'register' ? 12 : 1} maxLength={128} required value={password} onChange={e => setPassword(e.target.value)} />
+          <button className="primary-button" type="submit" disabled={apiBusy}>{apiBusy ? 'Please wait…' : authMode === 'register' ? 'Create account' : 'Sign in'}</button>
+        </form>}
+        {apiBase && apiToken && <div className="cloud-session"><span>Signed in as {email}</span><button className="secondary-button" onClick={() => { setApiToken(null); setCloudProjects([]); setNotice('Signed out.'); }}>Sign out</button></div>}
+        {apiToken && (cloudProjects.length ? cloudProjects.map(project => <article className="saved-project" key={project.id}>
+          <div><strong>{project.title}</strong><span>{project.snapshots.length} saved version{project.snapshots.length === 1 ? '' : 's'} · Updated {new Date(project.updated_at).toLocaleDateString()}</span></div>
+          <div className="saved-actions"><button onClick={() => cloudRename(project)} aria-label={`Rename cloud project ${project.title}`}>Rename</button><button onClick={() => cloudDuplicate(project)} aria-label={`Duplicate cloud project ${project.title}`}><Copy size={14} /></button><button onClick={() => cloudDelete(project)} aria-label={`Delete cloud project ${project.title}`}><Trash2 size={14} /></button></div>
+        </article>) : <p className="empty-projects">No cloud projects yet. Save a concept while signed in to create one.</p>)}
+      </div>
       <div className="saved-projects">
         <div className="saved-heading"><div className="eyebrow">ON THIS DEVICE</div><h3>Saved concepts</h3><p>These are stored in this browser only. They are not synced to an account or server.</p></div>
         {projects.length ? projects.map(project => <article className="saved-project" key={project.id}>
