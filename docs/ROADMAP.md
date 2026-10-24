@@ -66,7 +66,7 @@ Only mark tasks complete when the change exists in the repository and verificati
 - Implemented in repository: 44
 - Remaining or externally blocked: 3 (T-039 real-quote pilot; T-045 live deployment/rollback verification; T-046 monetization evaluation after pilot validation).
 - Milestones 1–3 are implemented; Milestone 4 is implemented except the real-quote pilot; Milestone 5 has deployment configuration, account export/deletion, automated security checks and report support, while live deployment and post-pilot monetization remain pending.
-- CI run 40111655721 passed on commit 95e836884dc21febfa1c8530af1713a15d699f28: frontend tests/build, npm audit, bundle budgets, accessibility smoke checks, backend tests and Alembic migration validation are green. CodeQL analysis for that commit is still running; a passing CI build does not mean deployment is complete.
+- CI run 40111731264 passed on commit 77eabf97acde9b3507c95a2dc5f9e8c3e41e34de: frontend tests/build, npm audit, bundle budgets, accessibility smoke checks, backend tests and Alembic migration validation are green. CodeQL run 40111655793 also passed on the code-equivalent 95e836 revision. A later documentation-only clarification in MassingView has fresh CI/security runs in progress; a passing CI build does not mean deployment is complete.
 - Current milestone: 4–5 verification and pilot readiness.
 
 ### Evidence added in this pass
