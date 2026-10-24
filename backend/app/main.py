@@ -9,7 +9,7 @@ from typing import Any, Generator
 from uuid import uuid4
 
 import jwt
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from argon2 import PasswordHasher
@@ -17,6 +17,9 @@ from argon2.exceptions import VerificationError, VerifyMismatchError
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./juno_architects.db")
 JWT_SECRET = os.getenv("JWT_SECRET", "")
@@ -151,6 +154,9 @@ class ProjectOutput(BaseModel):
 
 
 app = FastAPI(title="Juno Architects API", version="0.1.0", description="Feasibility and private concept-project API.")
+limiter = Limiter(key_func=get_remote_address, default_limits=["120/minute"])
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 allowed_origins = [origin.strip() for origin in os.getenv("FRONTEND_ORIGINS", "http://localhost:5173").split(",") if origin.strip()]
 app.add_middleware(
     CORSMiddleware,
@@ -210,7 +216,8 @@ def health() -> dict[str, str]:
 
 
 @app.post("/api/v1/auth/register", response_model=TokenOutput, status_code=201)
-def register(data: RegisterInput, db: Session = Depends(get_db)) -> TokenOutput:
+@limiter.limit("5/minute")
+def register(request: Request, data: RegisterInput, db: Session = Depends(get_db)) -> TokenOutput:
     if len(JWT_SECRET) < 32:
         raise HTTPException(status_code=503, detail="Authentication is not configured.")
     email = data.email.strip().lower()
@@ -226,7 +233,8 @@ def register(data: RegisterInput, db: Session = Depends(get_db)) -> TokenOutput:
 
 
 @app.post("/api/v1/auth/login", response_model=TokenOutput)
-def login(data: LoginInput, db: Session = Depends(get_db)) -> TokenOutput:
+@limiter.limit("10/minute")
+def login(request: Request, data: LoginInput, db: Session = Depends(get_db)) -> TokenOutput:
     email = data.email.strip().lower()
     user = db.scalar(select(User).where(User.email == email))
     valid_password = False
