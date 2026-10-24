@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: juno-architects-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.api
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REVIEW_ADMIN_TOKEN
+        generateValue: true
+      - key: FRONTEND_ORIGINS
+        sync: false
