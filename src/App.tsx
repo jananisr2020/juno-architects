@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ArrowDownRight, ArrowRight, Check, ChevronDown, Compass, House, IndianRupee, MapPin, Ruler, ShieldCheck, Sparkles } from 'lucide-react';
 import { calculateFeasibility, RATE_CONFIGURATION, type FinishLevel, type ProjectInput } from './lib/feasibility';
+import regionalRules from '../shared/regional-rules.v1.json';
 import PlanWorkspace from './components/PlanWorkspace';
 
 const money = (value: number) => new Intl.NumberFormat('en-IN', {
@@ -147,6 +148,11 @@ export default function App() {
             <div className="breakdown-total"><span>Illustrative total</span><strong>{money(result.estimatedTotal)}</strong></div>
           </div>
           <div className="warning-note"><ShieldCheck size={19} /><p><strong>Important:</strong> Rates are published market research ranges, not independently verified contractor quotations. Confirm today's scope and prices with multiple local contractors. Land, unusual foundations, major retaining work, interiors, compound wall, borewell/septic and other site-specific items may be excluded. Building type does not yet change the rate. Local rules, setbacks, FSI and approvals need qualified local review.</p></div>
+          <div className="rate-provenance">
+            <strong>Regional rules — reference links only</strong>
+            <p>{regionalRules.status} · Checked {regionalRules.checked_date}. Juno does not calculate setbacks, FSI, plot coverage or permit eligibility from these documents. The 2026 amendment index must be checked for later/current amendments.</p>
+            <ul>{regionalRules.jurisdictions.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.name}</a> <span>({source.source_date}; {source.scope})</span></li>)}</ul>
+          </div>
           <div className="rate-provenance">
             <strong>Rate provenance</strong>
             <p>Configuration {result.rateVersion} · {result.rateStatus} · Region: {RATE_CONFIGURATION.region}. Market ranges and government schedules have different scopes; these links do not constitute a live quote or a guarantee of current pricing.</p>
