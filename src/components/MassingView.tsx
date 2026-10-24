@@ -51,6 +51,6 @@ export default function MassingView({ plan, floors }: Props) {
       <text x="22" y="28" fill="#314b3b" fontSize="12" fontWeight="600">CONCEPT MASSING · NOT A CONSTRUCTION MODEL</text>
       <text x="22" y="405" fill="#526457" fontSize="12">{plan.building.width.toFixed(1)} × {plan.building.height.toFixed(1)} ft footprint · {floors} floor{floors > 1 ? 's' : ''} · {plan.rooms.length} room zones</text>
     </svg>
-    <p className="plan-warning">Isometric block model derived from the same measured footprint and room zones. Floor height is illustrative; it does not represent structural design, openings, stairs, or code compliance.</p>
+    <p className="plan-warning">Isometric massing from the measured footprint and room zones. The 2D room arrangement is one representative floor; separate upper-floor layouts are not generated yet. Floor height is illustrative and does not represent structural design, openings, stairs, or code compliance.</p>
   </div>;
 }
