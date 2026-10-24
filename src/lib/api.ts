@@ -36,3 +36,7 @@ export function duplicateApiProject(baseUrl: string, token: string, id: string):
 export function deleteApiProject(baseUrl: string, token: string, id: string): Promise<void> {
   return request<void>(baseUrl, `/api/v1/projects/${encodeURIComponent(id)}`, token, { method: 'DELETE' });
 }
+
+export function addApiSnapshot(baseUrl: string, token: string, id: string, payload: Record<string, unknown>): Promise<ApiProject> {
+  return request<ApiProject>(baseUrl, `/api/v1/projects/${encodeURIComponent(id)}/snapshots`, token, { method: 'POST', body: JSON.stringify(payload) });
+}
