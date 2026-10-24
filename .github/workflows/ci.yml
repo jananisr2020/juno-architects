@@ -28,6 +28,8 @@ jobs:
         run: npm run build
       - name: Enforce compressed asset budgets
         run: node scripts/check-bundle.mjs
+      - name: Check accessibility contract
+        run: node scripts/check-a11y-contract.mjs
 
   backend:
     name: Backend tests and migration validation
