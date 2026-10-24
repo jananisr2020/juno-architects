@@ -3,7 +3,7 @@ import { Copy, Download, FilePlus2, History, Trash2 } from 'lucide-react';
 import { generatePlan, roomArea, type PlanModel } from '../lib/plan-model';
 import { RATE_CONFIGURATION, type FinishLevel } from '../lib/feasibility';
 import { addSnapshot, createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
-import { addApiSnapshot, authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, listProfessionalReviews, requestProfessionalReview, renameApiProject, type ApiProject, type ProfessionalReviewRequest } from '../lib/api';
+import { addApiSnapshot, authenticateApi, createApiProject, deleteAccountApi, deleteApiProject, duplicateApiProject, listApiProjects, listProfessionalReviews, requestProfessionalReview, renameApiProject, type ApiProject, type ProfessionalReviewRequest } from '../lib/api';
 import MassingView from './MassingView';
 
 type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string; finish: FinishLevel };
@@ -54,6 +54,16 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not connect to the account service.');
     } finally { setApiBusy(false); }
+  }
+  async function deleteAccount() {
+    if (!apiToken || !apiBase || !window.confirm('Delete your Juno Architects account and cloud projects? This cannot be undone.')) return;
+    const currentPassword = window.prompt('Enter your password to confirm account deletion.');
+    if (!currentPassword) return;
+    try {
+      await deleteAccountApi(apiBase, apiToken, currentPassword);
+      setApiToken(null); setCloudProjects([]); setReviewRequests([]); setPassword('');
+      setNotice('Account and associated cloud projects deleted.');
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not delete the account.'); }
   }
   async function requestReview(project: ApiProject) {
     if (!apiToken || !apiBase) return;
@@ -189,7 +199,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
           <label htmlFor="account-password">Password (minimum 12 characters for new accounts)</label><input id="account-password" type="password" autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} minLength={authMode === 'register' ? 12 : 1} maxLength={128} required value={password} onChange={e => setPassword(e.target.value)} />
           <button className="primary-button" type="submit" disabled={apiBusy}>{apiBusy ? 'Please wait…' : authMode === 'register' ? 'Create account' : 'Sign in'}</button>
         </form>}
-        {apiBase && apiToken && <div className="cloud-session"><span>Signed in as {email}</span><button className="secondary-button" onClick={() => { setApiToken(null); setCloudProjects([]); setReviewRequests([]); setNotice('Signed out.'); }}>Sign out</button></div>}
+        {apiBase && apiToken && <div className="cloud-session"><span>Signed in as {email}</span><button className="secondary-button" onClick={() => { setApiToken(null); setCloudProjects([]); setReviewRequests([]); setNotice('Signed out.'); }}>Sign out</button><button className="secondary-button" onClick={deleteAccount}>Delete account</button></div>}
         {apiToken && <div className="review-queue">
           <h4>Professional review requests</h4>
           <p>Requests are stored with your account. A reviewer is not automatically assigned; no approval is implied.</p>
