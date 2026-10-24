@@ -4,7 +4,7 @@ export interface ProjectSnapshot {
   version: number;
   savedAt: string;
   title: string;
-  input: { budget: number; plotWidthFt: number; plotDepthFt: number; bedrooms: number; location: string; floors?: number; finish?: 'basic' | 'standard' | 'premium' };
+  input: { budget: number; plotWidthFt: number; plotDepthFt: number; bedrooms: number; location: string; floors?: number; finish?: 'basic' | 'standard' | 'premium'; buildingType?: string };
   plan?: PlanModel;
 }
 export interface LocalProject { id: string; title: string; createdAt: string; updatedAt: string; snapshots: ProjectSnapshot[] }
