@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import json
+import secrets
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Any, Generator
@@ -19,6 +20,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, rela
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./juno_architects.db")
 JWT_SECRET = os.getenv("JWT_SECRET", "")
+REVIEW_ADMIN_TOKEN = os.getenv("REVIEW_ADMIN_TOKEN", "")
 JWT_ALGORITHM = "HS256"
 TOKEN_MINUTES = 60
 RATE_CONFIGURATION = json.loads((Path(__file__).resolve().parents[2] / "shared" / "rates.v1.json").read_text(encoding="utf-8"))
@@ -62,6 +64,18 @@ class Project(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     owner: Mapped[User] = relationship(back_populates="projects")
     snapshots: Mapped[list["ProjectSnapshot"]] = relationship(back_populates="project", cascade="all, delete-orphan", order_by="ProjectSnapshot.version")
+
+
+class ProfessionalReviewRequest(Base):
+    __tablename__ = "professional_review_requests"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    note: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(32), default="requested")
+    reviewer_note: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 class ProjectSnapshot(Base):
@@ -116,6 +130,15 @@ class ProjectInput(BaseModel):
 
 class ProjectRename(BaseModel):
     title: str = Field(min_length=1, max_length=160)
+
+
+class ReviewRequestInput(BaseModel):
+    note: str = Field(default="", max_length=2000)
+
+
+class ReviewDecision(BaseModel):
+    status: str = Field(pattern="^(accepted|needs_changes|completed|declined)$")
+    reviewer_note: str = Field(default="", max_length=2000)
 
 
 class ProjectOutput(BaseModel):
@@ -240,6 +263,43 @@ def feasibility(data: FeasibilityInput) -> dict[str, Any]:
         "site_allowance": site, "professional_allowance": professional, "contingency": contingency,
         "estimated_total": total, "assumptions": ["Land excluded", "Third-party published market ranges; not independently verified contractor quotes", "Site-specific rules and professional review required"],
     }
+
+
+@app.post("/api/v1/projects/{project_id}/review-requests", status_code=201)
+def request_professional_review(project_id: str, data: ReviewRequestInput, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict[str, Any]:
+    owned_project(db, project_id, user)
+    review = ProfessionalReviewRequest(project_id=project_id, owner_id=user.id, note=data.note.strip())
+    db.add(review)
+    db.commit()
+    db.refresh(review)
+    return review_json(review)
+
+
+@app.get("/api/v1/review-requests")
+def list_my_review_requests(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict[str, Any]]:
+    reviews = db.scalars(select(ProfessionalReviewRequest).where(ProfessionalReviewRequest.owner_id == user.id).order_by(ProfessionalReviewRequest.created_at.desc())).all()
+    return [review_json(review) for review in reviews]
+
+
+@app.patch("/api/v1/review-requests/{review_id}")
+def decide_professional_review(review_id: str, data: ReviewDecision, x_review_admin_token: str | None = None, db: Session = Depends(get_db)) -> dict[str, Any]:
+    # Separate secret for reviewer operations; never reuse the public JWT secret.
+    if not REVIEW_ADMIN_TOKEN or not x_review_admin_token or not secrets.compare_digest(x_review_admin_token, REVIEW_ADMIN_TOKEN):
+        raise HTTPException(status_code=401, detail="Reviewer authorization required.")
+    review = db.get(ProfessionalReviewRequest, review_id)
+    if review is None:
+        raise HTTPException(status_code=404, detail="Review request not found.")
+    review.status = data.status
+    review.reviewer_note = data.reviewer_note.strip()
+    review.updated_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(review)
+    return review_json(review)
+
+
+def review_json(review: ProfessionalReviewRequest) -> dict[str, Any]:
+    return {"id": review.id, "project_id": review.project_id, "status": review.status, "note": review.note,
+            "reviewer_note": review.reviewer_note, "created_at": review.created_at, "updated_at": review.updated_at}
 
 
 @app.get("/api/v1/projects")
