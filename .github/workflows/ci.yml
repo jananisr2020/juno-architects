@@ -46,7 +46,11 @@ jobs:
           JWT_SECRET: ci-test-secret-that-is-at-least-32-characters-long
           JUNO_AUTO_CREATE_TABLES: "false"
         run: pytest -q
-      - name: Validate Alembic migration graph
+      - name: Validate Alembic migration graph and apply migrations
         env:
           JWT_SECRET: ci-test-secret-that-is-at-least-32-characters-long
-        run: alembic heads
+          DATABASE_URL: sqlite:///./ci_migration_check.db
+        run: |
+          python -m compileall -q backend
+          alembic heads
+          alembic upgrade head
