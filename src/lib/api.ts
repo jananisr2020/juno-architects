@@ -56,3 +56,7 @@ export function requestProfessionalReview(baseUrl: string, token: string, projec
 export function listProfessionalReviews(baseUrl: string, token: string): Promise<ProfessionalReviewRequest[]> {
   return request<ProfessionalReviewRequest[]>(baseUrl, '/api/v1/review-requests', token);
 }
+
+export function deleteAccountApi(baseUrl: string, token: string, password: string): Promise<void> {
+  return request<void>(baseUrl, '/api/v1/account', token, { method: 'DELETE', body: JSON.stringify({ password }) });
+}
