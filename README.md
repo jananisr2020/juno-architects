@@ -9,21 +9,22 @@ Original concept planning and early budget feasibility for homes, starting with 
 - Responsive React + TypeScript + Vite frontend.
 - Budget, location, plot dimensions, floor count, bedroom count, building type and finish inputs with validation.
 - Deterministic cost/area calculator with itemized allowances, versioned shared rate configuration and visible source references.
-- Explicitly unverified placeholder construction rates; Tamil Nadu PWD/SOR benchmark references are documented, but the values have not been calibrated against the published table and current private quotes.
+- Versioned low/mid/high Coimbatore market research bands, source links and transparent uncertainty. These are third-party published ranges, not independently verified contractor quotes; official PWD references remain separate because the scope differs.
 - Original deterministic concept-layout generator with a canonical feet-based geometry model, plot/building bounds checks, room-overlap checks, and compact/balanced/open alternatives.
+- Isometric 3D massing view generated from the same footprint and room zones; floor heights are illustrative, not structural design.
 - Dimensioned SVG floor-plan rendering, room-area schedule, and downloadable Markdown concept brief.
 - Browser-local project save/rename/duplicate/delete and version snapshots.
 - Optional FastAPI client for account-backed projects when VITE_API_BASE_URL is configured.
-- FastAPI API with Argon2id password hashing, short-lived bearer tokens, owner-scoped project CRUD, immutable numbered snapshots and PostgreSQL-compatible Alembic migration.
+- FastAPI API with Argon2id password hashing, short-lived bearer tokens, per-IP rate limits, owner-scoped project CRUD, immutable numbered snapshots, password-confirmed account deletion, professional review request workflow and PostgreSQL-compatible Alembic migrations.
 - SEO metadata plus sitemap/robots/canonical generation when SITE_URL is configured.
-- GitHub Actions for frontend tests/build and backend tests/migration checks.
+- GitHub Actions for frontend tests/build, compressed asset budgets, accessibility smoke checks, backend tests/migration checks, CodeQL and dependency review; Dependabot updates are configured.
 
 ## Honest current limitations
 
 - The concept generator is deterministic, **not yet a generative-AI design model**. It is not a full architectural layout solver and does not handle doors/windows, stairs, room connectivity, ventilation, structural systems, setbacks, FSI or local building-code compliance.
 - Cost rates remain illustrative and unverified. Official reference documents do not by themselves validate the placeholder rates for private residential work.
 - Local projects remain on the current browser/device. Cloud accounts require a separately deployed API, private PostgreSQL database, a production JWT secret and exact CORS/frontend URL configuration.
-- Email verification, password reset, rate limiting, account deletion, backup/restore drills, security review and production API deployment remain before public account launch.
+- Email verification and password reset still need a configured email provider. Production multi-instance rate limiting, backup/restore drills, security review and live API/database deployment remain before public account launch.
 - No production deployment is claimed until a live URL, database migration, health check and smoke tests are verified.
 
 ## Repository guides
@@ -33,6 +34,7 @@ Original concept planning and early budget feasibility for homes, starting with 
 - [Roadmap and task tracker](docs/ROADMAP.md)
 - [Cost-estimation policy and source references](docs/COST_ESTIMATION.md)
 - [Privacy and retention](docs/PRIVACY.md)
+- [Support and professional review workflow](docs/SUPPORT.md)
 - [API setup and endpoint guide](backend/README.md)
 - [Deployment checklist](docs/DEPLOYMENT.md)
 - [Security guidance](SECURITY.md)
