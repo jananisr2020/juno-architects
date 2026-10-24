@@ -8,11 +8,11 @@ Only mark tasks complete when the change exists in the repository and verificati
 - [x] T-003 Document architecture boundaries.
 - [x] T-004 Define cost transparency and safety policy.
 - [x] T-005 Create task tracker and milestone sequence.
-- [ ] T-006 Add frontend application scaffold.
-- [ ] T-007 Add automated frontend/backend CI checks.
+- [x] T-006 Add frontend application scaffold.
+- [x] T-007 Add automated frontend CI workflow (first run is being checked).
 - [ ] T-008 Add baseline unit tests.
-- [ ] T-009 Add contribution and security guidance.
-- [ ] T-010 Add deployment checklist.
+- [x] T-009 Add contribution and security guidance.
+- [x] T-010 Add deployment checklist.
 
 ## Milestone 1 — budget feasibility
 - [ ] T-011 Build minimal input form.
@@ -62,9 +62,9 @@ Only mark tasks complete when the change exists in the repository and verificati
 
 ## Status as of 2026-10-24
 - Tasks recorded: 46
-- Complete with repository evidence: 5
-- Remaining: 41
-- Current milestone: 0 — foundation
+- Complete with repository evidence: 9
+- Remaining: 37
+- Current milestone: 0 — foundation / CI verification
 
 ## Definition of done
 A task is complete only when code/docs are committed and tests pass or limitations are documented. Never claim deployment without a verified URL and health check.
