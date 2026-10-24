@@ -59,12 +59,13 @@ Only mark tasks complete when the change exists in the repository and verificati
 - [ ] T-044 Security review and dependency automation.
 - [ ] T-045 Verify deployment and rollback.
 - [ ] T-046 Evaluate paid customization after MVP validation.
+- [x] T-047 Add Netlify build/publish configuration and pin Node.js 20.
 
 ## Status as of 2026-10-24
-- Tasks recorded: 46
-- Complete with repository evidence: 9
+- Tasks recorded: 47
+- Complete with repository evidence: 10
 - Remaining: 37
-- Current milestone: 0 — foundation / CI verification
+- Current milestone: 0 — foundation / Netlify connection and deployment
 
 ## Definition of done
 A task is complete only when code/docs are committed and tests pass or limitations are documented. Never claim deployment without a verified URL and health check.
