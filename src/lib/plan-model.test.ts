@@ -29,6 +29,7 @@ describe('structured plan generator', () => {
   });
   it('rejects unrealistic plot dimensions and bedroom counts', () => {
     expect(() => generatePlan({ plotWidthFt: 10, plotDepthFt: 20, bedrooms: 2 })).toThrow(/too small/i);
+    expect(() => generatePlan({ plotWidthFt: 16, plotDepthFt: 18, bedrooms: 8 })).toThrow(/reduce bedrooms/i);
     expect(() => generatePlan({ plotWidthFt: 30, plotDepthFt: 40, bedrooms: 0 })).toThrow(/bedrooms/i);
   });
 });
