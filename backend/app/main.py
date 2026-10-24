@@ -226,7 +226,8 @@ def feasibility(data: FeasibilityInput) -> dict[str, Any]:
     plot_area = data.plot_width_ft * data.plot_depth_ft
     return {
         "plot_area_sq_ft": plot_area, "rate_per_sq_ft": rate, "rate_version": RATE_CONFIGURATION["configuration_id"],
-        "rate_status": RATE_CONFIGURATION["source_status"], "area_low_sq_ft": min(area_high * 0.85, plot_area * data.floors),
+        "rate_status": RATE_CONFIGURATION["source_status"], "region": RATE_CONFIGURATION["region"],
+        "configuration_date": RATE_CONFIGURATION["configuration_date"], "benchmark_references": RATE_CONFIGURATION["benchmark_references"], "area_low_sq_ft": min(area_high * 0.85, plot_area * data.floors),
         "area_high_sq_ft": min(area_high, plot_area * data.floors), "base_construction": base,
         "site_allowance": site, "professional_allowance": professional, "contingency": contingency,
         "estimated_total": total, "assumptions": ["Land excluded", "Illustrative rate only; not a local quote", "Site-specific rules and professional review required"],
