@@ -39,7 +39,7 @@ Health endpoint: GET /health. Interactive API schema: /docs (disable or protect 
 - POST /api/v1/projects/{id}/duplicate — duplicate project and snapshots
 - POST /api/v1/projects/{id}/snapshots — append a versioned immutable payload
 
-Passwords use pwdlib's recommended Argon2id hashing. Project lookups are owner-scoped and return 404 for another user's IDs. The API does not store bearer tokens or passwords in project payloads.
+Passwords use argon2-cffi's Argon2id password hashing. Project lookups are owner-scoped and return 404 for another user's IDs. The API does not store bearer tokens or passwords in project payloads.
 
 ## Frontend integration
 
