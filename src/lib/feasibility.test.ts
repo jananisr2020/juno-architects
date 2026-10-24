@@ -40,3 +40,14 @@ describe('calculateFeasibility', () => {
     expect(() => calculateFeasibility({ ...sample, location: ' ' })).toThrow(/location is required/i);
   });
 });
+
+  it('caps the area range at gross plot capacity across selected floors', () => {
+    const result = calculateFeasibility({ ...sample, budget: 50_000_000, plotWidthFt: 20, plotDepthFt: 30, floors: 1 });
+    expect(result.areaHigh).toBeLessThanOrEqual(600);
+    expect(result.assumptions.some(item => item.includes('not buildable area'))).toBe(true);
+  });
+
+  it('rejects unsupported building type and excessive dimensions', () => {
+    expect(() => calculateFeasibility({ ...sample, buildingType: 'Unknown type' })).toThrow(/building type/i);
+    expect(() => calculateFeasibility({ ...sample, plotWidthFt: 1200 })).toThrow(/supported planning range/i);
+  });
