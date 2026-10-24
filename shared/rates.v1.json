@@ -27,7 +27,8 @@
     }
   },
   "inclusions": [
-    "Illustrative base construction allowance only"
+    "Published third-party indicative main-building construction range; actual scope depends on the source and contractor quotation",
+    "Labour/materials/finish inclusions must be confirmed before comparing quotes"
   ],
   "exclusions": [
     "Land",
@@ -37,7 +38,7 @@
     "Borewell and septic",
     "Applicable taxes not already included"
   ],
-  "production_note": "These are indicative third-party published market ranges, not independently verified contractor quotations and not an official PWD-approved private-home rate. The selected representative value is the midpoint of each band and is for planning only. Verify scope, taxes, location, materials, structural system and inclusions with multiple current local quotations.",
+  "production_note": "Bands are indicative third-party published Coimbatore market ranges, not independently verified contractor quotations and not official PWD-approved private-home rates. The midpoint is a planning reference only. The current configuration is Coimbatore-specific and must not be treated as city-adjusted for Chennai or other locations. Confirm scope, taxes, materials, structural system and inclusions with multiple current local quotations.",
   "benchmark_references": [
     {
       "name": "House Construction Cost in Coimbatore (2026)",
