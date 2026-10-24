@@ -22,6 +22,7 @@ const EPSILON = 0.001;
 export function generatePlan(input: PlanInput): PlanModel {
   const { plotWidthFt: width, plotDepthFt: depth, bedrooms, alternative = 'balanced' } = input;
   if (![width, depth, bedrooms].every(Number.isFinite) || width <= 0 || depth <= 0) throw new Error('Plot dimensions must be positive finite numbers.');
+  if (width > 1000 || depth > 1000) throw new Error('Plot dimensions exceed the supported planning range.');
   if (!Number.isInteger(bedrooms) || bedrooms < 1 || bedrooms > 8) throw new Error('Bedrooms must be a whole number from 1 to 8.');
   if (width < 16 || depth < 18) throw new Error('Plot is too small for this starter concept; use at least 16 ft × 18 ft.');
   const inset = Math.min(3, width * 0.08, depth * 0.08);
