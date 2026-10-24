@@ -1,3 +1,5 @@
+import rateConfig from '../../shared/rates.v1.json';
+
 export type FinishLevel = 'basic' | 'standard' | 'premium';
 
 export interface ProjectInput {
@@ -27,16 +29,16 @@ export interface FeasibilityResult {
 }
 
 export const RATE_CONFIGURATION = {
-  schemaVersion: 1,
-  id: 'illustrative-2026-10-v1',
-  region: 'Tamil Nadu, India',
-  effectiveDate: '2026-10-24',
-  sourceStatus: 'unverified-placeholder',
-  sourceName: null,
-  sourceUrl: null,
-  currency: 'INR',
-  unit: 'built-up-square-foot',
-  rates: { basic: 1800, standard: 2200, premium: 2800 },
+  schemaVersion: rateConfig.schema_version,
+  id: rateConfig.configuration_id,
+  region: rateConfig.region,
+  effectiveDate: rateConfig.effective_date,
+  sourceStatus: rateConfig.source_status,
+  sourceName: rateConfig.source_name,
+  sourceUrl: rateConfig.source_url,
+  currency: rateConfig.currency,
+  unit: rateConfig.unit,
+  rates: rateConfig.rates,
 } as const;
 
 /**
