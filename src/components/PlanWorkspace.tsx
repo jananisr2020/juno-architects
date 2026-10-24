@@ -6,10 +6,11 @@ import { addSnapshot, createProject, deleteProject, duplicateProject, listProjec
 import { addApiSnapshot, authenticateApi, createApiProject, deleteAccountApi, deleteApiProject, duplicateApiProject, exportAccountApi, listApiProjects, listProfessionalReviews, requestProfessionalReview, renameApiProject, type ApiProject, type ProfessionalReviewRequest } from '../lib/api';
 import MassingView from './MassingView';
 
-type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string; finish: FinishLevel; buildingType: string };
+type SavedInput = { budget: number; plotWidthFt: number; plotDepthFt: number; bedrooms: number; location: string; floors?: number; finish?: FinishLevel; buildingType?: string };
+type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string; finish: FinishLevel; buildingType: string; onLoadInput: (input: SavedInput) => void };
 const palette: Record<string, string> = { living: '#dce8df', bedroom: '#e8e1d2', kitchen: '#dbe5ef', bathroom: '#e7dfe9', circulation: '#eeeeea' };
 
-export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, location, finish, buildingType }: Props) {
+export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, location, finish, buildingType, onLoadInput }: Props) {
   const [view, setView] = useState<'2d' | '3d'>('2d');
   const [alternative, setAlternative] = useState<PlanModel['metadata']['alternative']>('balanced');
   const [projects, setProjects] = useState<LocalProject[]>(() => listProjects());
@@ -159,6 +160,22 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
     try { setProjects(renameProject(p.id, title)); setNotice('Project renamed.'); }
     catch (error) { setNotice(error instanceof Error ? error.message : 'Could not rename project.'); }
   }
+  function loadLocalProject(project: LocalProject) {
+    const snapshot = project.snapshots[project.snapshots.length - 1];
+    if (!snapshot) return;
+    onLoadInput(snapshot.input);
+    setNotice(`Loaded latest saved version of “${project.title}”.`);
+  }
+  function loadCloudProject(project: ApiProject) {
+    const snapshot = project.snapshots[project.snapshots.length - 1];
+    const payload = snapshot?.payload as { input?: SavedInput } | undefined;
+    if (!payload?.input) {
+      setNotice('This cloud snapshot does not contain saved planner inputs.');
+      return;
+    }
+    onLoadInput(payload.input);
+    setNotice(`Loaded latest cloud version of “${project.title}”.`);
+  }
   function newLocalVersion(p: LocalProject) {
     if (!plan) return;
     try {
@@ -230,14 +247,14 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
         </div>}
         {apiToken && (cloudProjects.length ? cloudProjects.map(project => <article className="saved-project" key={project.id}>
           <div><strong>{project.title}</strong><span>{project.snapshots.length} saved version{project.snapshots.length === 1 ? '' : 's'} · Updated {new Date(project.updated_at).toLocaleDateString()}</span></div>
-          <div className="saved-actions"><button onClick={() => cloudSnapshot(project)} aria-label={`Save new version of ${project.title}`}><History size={14} /></button><button onClick={() => requestReview(project)} aria-label={`Request professional review for ${project.title}`}>Request review</button><button onClick={() => cloudRename(project)} aria-label={`Rename cloud project ${project.title}`}>Rename</button><button onClick={() => cloudDuplicate(project)} aria-label={`Duplicate cloud project ${project.title}`}><Copy size={14} /></button><button onClick={() => cloudDelete(project)} aria-label={`Delete cloud project ${project.title}`}><Trash2 size={14} /></button></div>
+          <div className="saved-actions"><button onClick={() => loadCloudProject(project)} aria-label={`Open ${project.title}`}>Open</button><button onClick={() => cloudSnapshot(project)} aria-label={`Save new version of ${project.title}`}><History size={14} /></button><button onClick={() => requestReview(project)} aria-label={`Request professional review for ${project.title}`}>Request review</button><button onClick={() => cloudRename(project)} aria-label={`Rename cloud project ${project.title}`}>Rename</button><button onClick={() => cloudDuplicate(project)} aria-label={`Duplicate cloud project ${project.title}`}><Copy size={14} /></button><button onClick={() => cloudDelete(project)} aria-label={`Delete cloud project ${project.title}`}><Trash2 size={14} /></button></div>
         </article>) : <p className="empty-projects">No cloud projects yet. Save a concept while signed in to create one.</p>)}
       </div>
       <div className="saved-projects">
         <div className="saved-heading"><div className="eyebrow">ON THIS DEVICE</div><h3>Saved concepts</h3><p>These are stored in this browser only. They are not synced to an account or server.</p></div>
         {projects.length ? projects.map(project => <article className="saved-project" key={project.id}>
           <div><strong>{project.title}</strong><span>{project.snapshots.length} version{project.snapshots.length === 1 ? '' : 's'} · Updated {new Date(project.updatedAt).toLocaleDateString()}</span></div>
-          <div className="saved-actions"><button aria-label={`Save new version of ${project.title}`} onClick={() => newLocalVersion(project)} title="Save new version"><History size={14} /></button><button aria-label={`Rename ${project.title}`} onClick={() => rename(project)} title="Rename"><span>Rename</span></button><button aria-label={`Duplicate ${project.title}`} onClick={() => duplicate(project)} title="Duplicate"><Copy size={14} /></button><button aria-label={`Delete ${project.title}`} onClick={() => remove(project)} title="Delete"><Trash2 size={14} /></button></div>
+          <div className="saved-actions"><button aria-label={`Open ${project.title}`} onClick={() => loadLocalProject(project)}>Open</button><button aria-label={`Save new version of ${project.title}`} onClick={() => newLocalVersion(project)} title="Save new version"><History size={14} /></button><button aria-label={`Rename ${project.title}`} onClick={() => rename(project)} title="Rename"><span>Rename</span></button><button aria-label={`Duplicate ${project.title}`} onClick={() => duplicate(project)} title="Duplicate"><Copy size={14} /></button><button aria-label={`Delete ${project.title}`} onClick={() => remove(project)} title="Delete"><Trash2 size={14} /></button></div>
         </article>) : <p className="empty-projects">No saved concepts yet. Generate a layout and select “Save concept”.</p>}
       </div>
     </div>
