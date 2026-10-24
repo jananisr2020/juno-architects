@@ -14,7 +14,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from argon2 import PasswordHasher
 from argon2.exceptions import VerificationError, VerifyMismatchError
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, create_engine, select
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./juno_architects.db")
@@ -66,6 +66,7 @@ class Project(Base):
 
 class ProjectSnapshot(Base):
     __tablename__ = "project_snapshots"
+    __table_args__ = (UniqueConstraint("project_id", "version", name="uq_project_snapshot_version"),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
     version: Mapped[int] = mapped_column(Integer)
@@ -187,6 +188,8 @@ def health() -> dict[str, str]:
 
 @app.post("/api/v1/auth/register", response_model=TokenOutput, status_code=201)
 def register(data: RegisterInput, db: Session = Depends(get_db)) -> TokenOutput:
+    if len(JWT_SECRET) < 32:
+        raise HTTPException(status_code=503, detail="Authentication is not configured.")
     email = data.email.strip().lower()
     if "@" not in email or email.startswith("@") or email.endswith("@"):
         raise HTTPException(status_code=422, detail="Enter a valid email address.")
