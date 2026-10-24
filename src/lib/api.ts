@@ -60,3 +60,7 @@ export function listProfessionalReviews(baseUrl: string, token: string): Promise
 export function deleteAccountApi(baseUrl: string, token: string, password: string): Promise<void> {
   return request<void>(baseUrl, '/api/v1/account', token, { method: 'DELETE', body: JSON.stringify({ password }) });
 }
+
+export function exportAccountApi(baseUrl: string, token: string): Promise<Record<string, unknown>> {
+  return request<Record<string, unknown>>(baseUrl, '/api/v1/account/export', token);
+}
