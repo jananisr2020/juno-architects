@@ -1,14 +1,15 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { Copy, Download, FilePlus2, History, Trash2 } from 'lucide-react';
 import { generatePlan, roomArea, type PlanModel } from '../lib/plan-model';
+import { RATE_CONFIGURATION, type FinishLevel } from '../lib/feasibility';
 import { addSnapshot, createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
 import { addApiSnapshot, authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, renameApiProject, type ApiProject } from '../lib/api';
 import MassingView from './MassingView';
 
-type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string };
+type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string; finish: FinishLevel };
 const palette: Record<string, string> = { living: '#dce8df', bedroom: '#e8e1d2', kitchen: '#dbe5ef', bathroom: '#e7dfe9', circulation: '#eeeeea' };
 
-export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, location }: Props) {
+export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, location, finish }: Props) {
   const [view, setView] = useState<'2d' | '3d'>('2d');
   const [alternative, setAlternative] = useState<PlanModel['metadata']['alternative']>('balanced');
   const [projects, setProjects] = useState<LocalProject[]>(() => listProjects());
@@ -99,6 +100,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
       ...plan.rooms.map(r => `| ${r.name} | ${r.width.toFixed(1)} | ${r.height.toFixed(1)} | ${roomArea(r).toFixed(1)} |`),
       '', `Total scheduled room area: ${plan.rooms.reduce((sum, r) => sum + roomArea(r), 0).toFixed(1)} sq ft.`,
       '', '## Assumptions and review required', '- Dimensions are approximate concept geometry in feet.',
+      '- Rate bands are third-party published market research, not independently verified contractor quotations. Confirm scope, taxes, materials and exclusions with current local quotes.',
       '- The layout does not calculate setbacks, FSI, ventilation compliance, structural systems, plumbing routes, stair compliance, or local approvals.',
       '- Do not use for construction; ask a registered architect and structural engineer to develop and validate drawings.',
     ];
