@@ -3,7 +3,7 @@ import { Copy, Download, FilePlus2, History, Trash2 } from 'lucide-react';
 import { generatePlan, roomArea, type PlanModel } from '../lib/plan-model';
 import { RATE_CONFIGURATION, type FinishLevel } from '../lib/feasibility';
 import { addSnapshot, createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
-import { addApiSnapshot, authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, renameApiProject, type ApiProject } from '../lib/api';
+import { addApiSnapshot, authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, listProfessionalReviews, requestProfessionalReview, renameApiProject, type ApiProject, type ProfessionalReviewRequest } from '../lib/api';
 import MassingView from './MassingView';
 
 type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string; finish: FinishLevel };
@@ -20,6 +20,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
   const [password, setPassword] = useState('');
   const [apiToken, setApiToken] = useState<string | null>(null);
   const [cloudProjects, setCloudProjects] = useState<ApiProject[]>([]);
+  const [reviewRequests, setReviewRequests] = useState<ProfessionalReviewRequest[]>([]);
   const [apiBusy, setApiBusy] = useState(false);
   const plan = useMemo(() => {
     try { return generatePlan({ plotWidthFt: width, plotDepthFt: depth, bedrooms, alternative }); }
@@ -47,12 +48,22 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
     setApiBusy(true);
     try {
       const auth = await authenticateApi(apiBase, authMode, email, password);
-      const list = await listApiProjects(apiBase, auth.access_token);
-      setApiToken(auth.access_token); setCloudProjects(list); setPassword('');
+      const [list, reviews] = await Promise.all([listApiProjects(apiBase, auth.access_token), listProfessionalReviews(apiBase, auth.access_token)]);
+      setApiToken(auth.access_token); setCloudProjects(list); setReviewRequests(reviews); setPassword('');
       setNotice(authMode === 'register' ? 'Account created. Cloud projects are ready.' : 'Signed in. Cloud projects loaded.');
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not connect to the account service.');
     } finally { setApiBusy(false); }
+  }
+  async function requestReview(project: ApiProject) {
+    if (!apiToken || !apiBase) return;
+    const note = window.prompt('Optional note for the licensed architect or engineer reviewing this concept. Do not include sensitive personal information.');
+    if (note === null) return;
+    try {
+      const review = await requestProfessionalReview(apiBase, apiToken, project.id, note);
+      setReviewRequests(current => [review, ...current.filter(item => item.id !== review.id)]);
+      setNotice('Review request recorded. No professional has been assigned yet; this is not an approval or a guarantee of response.');
+    } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not submit the review request.'); }
   }
   async function cloudRename(project: ApiProject) {
     if (!apiToken || !apiBase) return;
@@ -178,10 +189,15 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
           <label htmlFor="account-password">Password (minimum 12 characters for new accounts)</label><input id="account-password" type="password" autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} minLength={authMode === 'register' ? 12 : 1} maxLength={128} required value={password} onChange={e => setPassword(e.target.value)} />
           <button className="primary-button" type="submit" disabled={apiBusy}>{apiBusy ? 'Please wait…' : authMode === 'register' ? 'Create account' : 'Sign in'}</button>
         </form>}
-        {apiBase && apiToken && <div className="cloud-session"><span>Signed in as {email}</span><button className="secondary-button" onClick={() => { setApiToken(null); setCloudProjects([]); setNotice('Signed out.'); }}>Sign out</button></div>}
+        {apiBase && apiToken && <div className="cloud-session"><span>Signed in as {email}</span><button className="secondary-button" onClick={() => { setApiToken(null); setCloudProjects([]); setReviewRequests([]); setNotice('Signed out.'); }}>Sign out</button></div>}
+        {apiToken && <div className="review-queue">
+          <h4>Professional review requests</h4>
+          <p>Requests are stored with your account. A reviewer is not automatically assigned; no approval is implied.</p>
+          {reviewRequests.length ? reviewRequests.map(item => <article className="review-item" key={item.id}><div><strong>{item.status.replace('_', ' ')}</strong><span>Requested {new Date(item.created_at).toLocaleDateString()}</span>{item.reviewer_note && <p>{item.reviewer_note}</p>}</div></article>) : <p className="empty-projects">No review requests yet.</p>}
+        </div>}
         {apiToken && (cloudProjects.length ? cloudProjects.map(project => <article className="saved-project" key={project.id}>
           <div><strong>{project.title}</strong><span>{project.snapshots.length} saved version{project.snapshots.length === 1 ? '' : 's'} · Updated {new Date(project.updated_at).toLocaleDateString()}</span></div>
-          <div className="saved-actions"><button onClick={() => cloudSnapshot(project)} aria-label={`Save new version of ${project.title}`}><History size={14} /></button><button onClick={() => cloudRename(project)} aria-label={`Rename cloud project ${project.title}`}>Rename</button><button onClick={() => cloudDuplicate(project)} aria-label={`Duplicate cloud project ${project.title}`}><Copy size={14} /></button><button onClick={() => cloudDelete(project)} aria-label={`Delete cloud project ${project.title}`}><Trash2 size={14} /></button></div>
+          <div className="saved-actions"><button onClick={() => cloudSnapshot(project)} aria-label={`Save new version of ${project.title}`}><History size={14} /></button><button onClick={() => requestReview(project)} aria-label={`Request professional review for ${project.title}`}>Request review</button><button onClick={() => cloudRename(project)} aria-label={`Rename cloud project ${project.title}`}>Rename</button><button onClick={() => cloudDuplicate(project)} aria-label={`Duplicate cloud project ${project.title}`}><Copy size={14} /></button><button onClick={() => cloudDelete(project)} aria-label={`Delete cloud project ${project.title}`}><Trash2 size={14} /></button></div>
         </article>) : <p className="empty-projects">No cloud projects yet. Save a concept while signed in to create one.</p>)}
       </div>
       <div className="saved-projects">
