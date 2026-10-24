@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-24",
+  "status": "reference-only-not-machine-applied",
+  "disclaimer": "These links are reference sources only. The rule text, amendments, local planning authority, plot classification, road width, building height, occupancy, special zones and current approval workflow must be verified by a licensed professional and competent authority. No setback, FSI, coverage or permission result is calculated from this file.",
+  "jurisdictions": [
+    {
+      "id": "tamil-nadu",
+      "name": "Tamil Nadu Combined Development and Building Rules, 2019",
+      "scope": "Statewide base rules; the official text may be amended. This file does not consolidate or interpret all amendments.",
+      "url": "https://tnhb.tn.gov.in/assets/documents/Act%20%26%20Rules/TNCDBR-2019.pdf",
+      "source_date": "2019-02-04"
+    },
+    {
+      "id": "tamil-nadu-2026-amendment-index",
+      "name": "Tamil Nadu Government Gazette — 2026 extraordinary notifications",
+      "scope": "Official Gazette index. A June 2026 amendment to TNCDBR was listed; review the exact Gazette notification and any later amendments before applying a rule.",
+      "url": "https://www.stationeryprinting.tn.gov.in/extra_ordinary_lists.php?id=MjAyNg%3D%3D",
+      "source_date": "2026-06-29"
+    },
+    {
+      "id": "coimbatore-ccmc",
+      "name": "Coimbatore City Municipal Corporation — Town Planning",
+      "scope": "Local authority portal for TNCDBR, amendments and building-permission documents.",
+      "url": "https://www.ccmc.gov.in/index.php/createpage/town-planning",
+      "source_date": "2026-10-24"
+    },
+    {
+      "id": "tn-urban-local-bodies",
+      "name": "Tamil Nadu Urban Local Bodies — Combined Development and Building Rules",
+      "scope": "Government department overview of the rules and their applicability to local bodies.",
+      "url": "https://www.tnurbantree.tn.gov.in/combined-development-and-building-rules-2019/",
+      "source_date": "2026-10-24"
+    }
+  ]
+}
