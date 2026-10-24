@@ -9,7 +9,7 @@ Only mark tasks complete when the change exists in the repository and verificati
 - [x] T-004 Define cost transparency and safety policy.
 - [x] T-005 Create task tracker and milestone sequence.
 - [x] T-006 Add frontend application scaffold.
-- [x] T-007 Add automated frontend/backend CI workflow (latest results pending verification).
+- [x] T-007 Add automated frontend/backend CI workflow; frontend/backend checks and migration validation passed on the latest code-equivalent revision.
 - [x] T-008 Add baseline unit tests.
 - [x] T-009 Add contribution and security guidance.
 - [x] T-010 Add deployment checklist.
