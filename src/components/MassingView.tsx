@@ -32,10 +32,12 @@ export default function MassingView({ plan, floors }: Props) {
         const ra = project(room.x, room.y, z), rb = project(room.x + room.width, room.y, z);
         const rc = project(room.x + room.width, room.y + room.height, z), rd = project(room.x, room.y + room.height, z);
         const rbf = project(room.x + room.width, room.y, 0), rcf = project(room.x + room.width, room.y + room.height, 0), rdf = project(room.x, room.y + room.height, 0);
+        const center = project(room.x + room.width / 2, room.y + room.height / 2, z + 0.4);
         return <g key={room.id}>
           <polygon points={pointString([rb,rc,rcf,rbf])} fill="#b8c8bb" stroke="#536a59" strokeWidth=".8"/>
           <polygon points={pointString([rd,rc,rcf,rdf])} fill="#8fa995" stroke="#536a59" strokeWidth=".8"/>
           <polygon points={pointString([ra,rb,rc,rd])} fill={fill[room.kind]} fillOpacity=".88" stroke="#536a59" strokeWidth=".8"/>
+          <text x={center.x} y={center.y} textAnchor="middle" fontSize="7" fill="#243b30">{room.name}</text>
         </g>;
       })}
       <polygon points={pointString([a,b,bt,at])} fill="#6e8875" fillOpacity=".45" stroke="#40594b" strokeWidth="1"/>
