@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prebuild": "node scripts/seo.mjs pre",
+    "postbuild": "node scripts/seo.mjs post"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
