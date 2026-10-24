@@ -1,4 +1,4 @@
-import { readdir, stat } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
@@ -6,7 +6,7 @@ const root = resolve('dist/assets');
 const files = await readdir(root);
 const assets = await Promise.all(files.map(async name => {
   const path = resolve(root, name);
-  const data = await (await import('node:fs/promises')).readFile(path);
+  const data = await readFile(path);
   return { name, ext: extname(name), bytes: data.length, gzipBytes: gzipSync(data).length };
 }));
 const js = assets.filter(a => a.ext === '.js');
