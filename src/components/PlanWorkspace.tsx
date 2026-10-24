@@ -3,11 +3,13 @@ import { Copy, Download, FilePlus2, History, Trash2 } from 'lucide-react';
 import { generatePlan, roomArea, type PlanModel } from '../lib/plan-model';
 import { addSnapshot, createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
 import { addApiSnapshot, authenticateApi, createApiProject, deleteApiProject, duplicateApiProject, listApiProjects, renameApiProject, type ApiProject } from '../lib/api';
+import MassingView from './MassingView';
 
-type Props = { width: number; depth: number; bedrooms: number; budget: number; location: string };
+type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string };
 const palette: Record<string, string> = { living: '#dce8df', bedroom: '#e8e1d2', kitchen: '#dbe5ef', bathroom: '#e7dfe9', circulation: '#eeeeea' };
 
-export default function PlanWorkspace({ width, depth, bedrooms, budget, location }: Props) {
+export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, location }: Props) {
+  const [view, setView] = useState<'2d' | '3d'>('2d');
   const [alternative, setAlternative] = useState<PlanModel['metadata']['alternative']>('balanced');
   const [projects, setProjects] = useState<LocalProject[]>(() => listProjects());
   const [notice, setNotice] = useState('');
@@ -134,7 +136,11 @@ export default function PlanWorkspace({ width, depth, bedrooms, budget, location
       <div className="plan-toolbar" role="group" aria-label="Choose layout alternative">
         {(['compact', 'balanced', 'open'] as const).map(option => <button key={option} className={alternative === option ? 'plan-tab active' : 'plan-tab'} onClick={() => setAlternative(option)} aria-pressed={alternative === option}>{option[0].toUpperCase() + option.slice(1)}</button>)}
       </div>
-      {plan ? <div className="plan-layout">
+      <div className="plan-toolbar" role="group" aria-label="Choose plan visualization">
+        <button type="button" className={view === '2d' ? 'plan-tab active' : 'plan-tab'} onClick={() => setView('2d')} aria-pressed={view === '2d'}>2D floor plan</button>
+        <button type="button" className={view === '3d' ? 'plan-tab active' : 'plan-tab'} onClick={() => setView('3d')} aria-pressed={view === '3d'}>3D massing</button>
+      </div>
+      {plan ? view === '3d' ? <MassingView plan={plan} floors={floors} /> : <div className="plan-layout">
         <div className="plan-canvas">
           <div className="plan-canvas-head"><strong>{plan.title}</strong><span>{width}′ × {depth}′ plot</span></div>
           <svg className="floor-plan-svg" viewBox={`-3 -5 ${width + 6} ${depth + 10}`} role="img" aria-label={`Dimensioned concept floor plan with ${bedrooms} bedrooms on a ${width} by ${depth} foot plot`}>
