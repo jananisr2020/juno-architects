@@ -28,12 +28,13 @@ export default function App() {
     buildingType,
     finish,
   };
-  const invalid = !Number.isFinite(input.budget) || input.budget <= 0 ||
-    !Number.isFinite(input.plotWidthFt) || input.plotWidthFt <= 0 ||
-    !Number.isFinite(input.plotDepthFt) || input.plotDepthFt <= 0 ||
+  const invalid = !Number.isFinite(input.budget) || input.budget <= 0 || input.budget > 10_000_000_000 ||
+    !Number.isFinite(input.plotWidthFt) || input.plotWidthFt <= 0 || input.plotWidthFt > 1000 ||
+    !Number.isFinite(input.plotDepthFt) || input.plotDepthFt <= 0 || input.plotDepthFt > 1000 ||
     !Number.isInteger(input.floors) || input.floors < 1 || input.floors > 3 ||
     !Number.isInteger(input.bedrooms) || input.bedrooms < 1 || input.bedrooms > 8 ||
-    !location.trim();
+    !['Independent house', 'Duplex home', 'Rental / multi-unit home'].includes(input.buildingType) ||
+    !['basic', 'standard', 'premium'].includes(input.finish) || !location.trim();
   const result = useMemo(() => invalid ? null : calculateFeasibility(input), [
     input.budget, input.plotWidthFt, input.plotDepthFt, input.floors,
     input.bedrooms, input.location, input.buildingType, input.finish, invalid,
