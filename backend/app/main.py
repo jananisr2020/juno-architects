@@ -15,7 +15,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from argon2 import PasswordHasher
 from argon2.exceptions import VerificationError, VerifyMismatchError
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, create_engine, select
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, create_engine, select, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -219,6 +219,15 @@ def health() -> dict[str, str]:
     return {"status": "ok", "service": "juno-architects-api"}
 
 
+@app.get("/health/ready")
+def readiness(db: Session = Depends(get_db)) -> dict[str, str]:
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception:
+        raise HTTPException(status_code=503, detail="Database is not ready.")
+    return {"status": "ready", "service": "juno-architects-api", "database": "reachable"}
+
+
 @app.post("/api/v1/auth/register", response_model=TokenOutput, status_code=201)
 @limiter.limit("5/minute")
 def register(request: Request, data: RegisterInput, db: Session = Depends(get_db)) -> TokenOutput:
@@ -251,6 +260,20 @@ def login(request: Request, data: LoginInput, db: Session = Depends(get_db)) -> 
         raise HTTPException(status_code=401, detail="Email or password is incorrect.")
     return TokenOutput(access_token=issue_token(user))
 
+
+
+@app.get("/api/v1/account/export")
+def export_account_data(user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict[str, Any]:
+    projects = db.scalars(select(Project).where(Project.owner_id == user.id).order_by(Project.created_at.asc())).all()
+    reviews = db.scalars(select(ProfessionalReviewRequest).where(ProfessionalReviewRequest.owner_id == user.id).order_by(ProfessionalReviewRequest.created_at.asc())).all()
+    return {
+        "schema_version": 1,
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "account": {"email": user.email, "created_at": user.created_at.isoformat()},
+        "projects": [project_json(project) for project in projects],
+        "professional_review_requests": [review_json(review) for review in reviews],
+        "notice": "This export contains your account and project data. Store it securely.",
+    }
 
 
 @app.delete("/api/v1/account", status_code=204)
