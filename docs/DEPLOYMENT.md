@@ -1,41 +1,44 @@
 # Deployment checklist
 
 ## Current architecture
-The frontend is a Vite static site and can be hosted on Netlify. The authenticated project API is a separate FastAPI service and needs a reachable API host plus PostgreSQL. A static Netlify deployment alone does not activate cloud accounts or database-backed projects.
+Netlify serves the static React/Vite frontend. The FastAPI API and PostgreSQL database are separate services. A static frontend deployment alone does not activate cloud accounts.
 
-## Frontend static deployment
+## Frontend (Netlify)
 - Build command: npm run build
 - Publish directory: dist
-- Node.js: 20 (configured in netlify.toml and .nvmrc)
-- Set VITE_API_BASE_URL to the HTTPS base URL of the deployed API only after the API is live. This value is public in the browser bundle.
-- The API base URL must not be a placeholder or an unverified host.
-- Confirm the final production hostname before adding canonical metadata and an absolute sitemap URL.
+- Node.js 20 is pinned in netlify.toml and .nvmrc.
+- Set SITE_URL to the final HTTPS origin to generate absolute sitemap/robots/canonical metadata.
+- Set VITE_API_BASE_URL to the deployed API HTTPS origin only after it is live; this value is public in the browser bundle.
+- Never put database credentials, JWT secrets or reviewer tokens in VITE_* variables.
 
-## API deployment
-- Use Python 3.11+ and install with python -m pip install -e .
-- Provision a private PostgreSQL database and set DATABASE_URL using the psycopg SQLAlchemy driver.
-- Generate JWT_SECRET with a cryptographically secure random value of at least 32 characters. Do not use the CI example secret.
-- Set FRONTEND_ORIGINS to the exact production frontend origin(s), comma-separated, without a wildcard.
-- Run alembic upgrade head as a release step before starting uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT.
-- Verify GET /health, registration/login, project create/list/rename/duplicate/delete, and cross-account denial.
-- Configure HTTPS, rate limiting, logging that excludes tokens and project payloads, database backups, restore tests, alerts and a security review before public account use.
+## API + PostgreSQL
+A local development stack is available with docker compose up --build. Local-only credentials in docker-compose.yml must never be reused in production.
 
-## Before deployment
-- [ ] Confirm the latest intended commit is on the deployment branch.
-- [ ] Confirm both frontend and backend CI jobs pass for that commit.
-- [ ] Verify mobile layout, keyboard navigation, form validation, SVG labels and export.
-- [ ] Confirm all displayed rates are marked verified or illustrative.
-- [ ] Confirm no secrets or private project data are in the repository or frontend bundle.
-- [ ] Confirm the privacy notice and limitations are visible.
-- [ ] Confirm the final production domain and sitemap.
+A Render blueprint and API container are provided:
+1. Import the GitHub repository into your hosting provider.
+2. Provision a private PostgreSQL database with backups; provide DATABASE_URL in the API service environment.
+3. Set FRONTEND_ORIGINS to the exact HTTPS frontend origin.
+4. Generate independent random JWT_SECRET and REVIEW_ADMIN_TOKEN values. Never use local or CI secrets.
+5. Configure the API host and database; the container applies Alembic migrations before starting FastAPI.
+6. Confirm GET /health, account registration/login, project CRUD/snapshots, account deletion and review request authorization.
+7. Confirm the API service has persistent PostgreSQL and that migration rollback/restore is documented.
 
-## After deployment
-- [ ] Open the published URL in a private/incognito session.
-- [ ] Check browser console and network errors.
-- [ ] Test valid and invalid budget/plot inputs and compare the estimate to test examples.
-- [ ] Verify API health and cross-origin account requests.
-- [ ] Confirm the deployed commit SHA.
-- [ ] Record URL, timestamp, CI run and smoke-test evidence in the roadmap.
-- [ ] Keep the previous deployment available for rollback.
+The Render blueprint deliberately requires an externally provisioned PostgreSQL URL. It does not create a database or deploy itself from this repository.
 
-Never claim deployment is complete until the published frontend URL, API health, database migration, and smoke tests have been verified.
+## Before public account launch
+- [ ] Configure email verification and password reset with an approved mail provider.
+- [ ] Replace in-memory rate-limit storage with Redis or gateway rate limiting for multiple API instances.
+- [ ] Confirm HTTPS, exact CORS, secret rotation, backups and a successful restore drill.
+- [ ] Complete a security review, privacy/legal review and professional review process.
+- [ ] Collect dated, scope-matched Coimbatore quotations and validate the price bands.
+- [ ] Verify the latest CI and security workflows on the intended commit.
+- [ ] Confirm the final domain, canonical URL and sitemap.
+- [ ] Smoke-test mobile controls, keyboard navigation, exports and browser console.
+
+## Release and rollback evidence
+- [ ] Record deployed frontend and API URLs, commit SHA, migration revision and CI run.
+- [ ] Verify the deployed API health endpoint and frontend/API cross-origin calls.
+- [ ] Test invalid input, authentication, project access isolation, deletion and reviewer authorization.
+- [ ] Keep the previous frontend deployment available for rollback and document the database restore procedure.
+
+Never claim deployment is complete until the live URLs, database migration, health checks and smoke tests have been verified.
