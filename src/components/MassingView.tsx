@@ -20,7 +20,7 @@ export default function MassingView({ plan, floors }: Props) {
   const pointString = (points: Array<{x:number;y:number}>) => points.map(p => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');
   const { x, y, width, height } = plan.building;
   const z = Math.max(1, floors) * 9.2;
-  const a = project(x, y, 0), b = project(x + width, y, 0), c = project(x + width, y + height, 0), d = project(x, y + height, 0);
+  const a = project(x, y, 0), b = project(x + width, y, 0), c = project(x + width, y + height, 0);
   const at = project(x, y, z), bt = project(x + width, y, z), ct = project(x + width, y + height, z), dt = project(x, y + height, z);
   const orderedRooms = [...plan.rooms].sort((r1, r2) => (r1.x + r1.y) - (r2.x + r2.y));
   return <div className="massing-frame">
