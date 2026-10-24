@@ -118,11 +118,18 @@ def test_professional_review_request_is_owner_scoped_and_has_reviewer_workflow(m
 def test_account_deletion_requires_password_and_removes_owned_projects():
     headers = register("delete-account@example.com")
     project = client.post("/api/v1/projects", headers=headers, json={"title":"Delete me","payload":{}}).json()
+    client.post(f"/api/v1/projects/{project['id']}/review-requests", headers=headers, json={"note":"Delete with account"})
     bad = client.request("DELETE", "/api/v1/account", headers=headers, json={"password":"not-the-password"})
     assert bad.status_code == 401
     good = client.request("DELETE", "/api/v1/account", headers=headers, json={"password":"correct-horse-battery-staple"})
     assert good.status_code == 204
     assert client.get(f"/api/v1/projects/{project['id']}", headers=headers).status_code == 401
+    db = TestSession()
+    try:
+        assert db.query(api.Project).count() == 0
+        assert db.query(api.ProfessionalReviewRequest).count() == 0
+    finally:
+        db.close()
 
 def test_account_export_includes_only_the_authenticated_users_data():
     headers = register("export-me@example.com")
