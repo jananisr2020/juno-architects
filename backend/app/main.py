@@ -286,7 +286,7 @@ def feasibility(data: FeasibilityInput) -> dict[str, Any]:
         "configuration_date": RATE_CONFIGURATION["configuration_date"], "benchmark_references": RATE_CONFIGURATION["benchmark_references"], "area_low_sq_ft": area_low,
         "area_high_sq_ft": min(area_high, plot_area * data.floors), "base_construction": base,
         "site_allowance": site, "professional_allowance": professional, "contingency": contingency,
-        "estimated_total": total, "assumptions": ["Land excluded", "Third-party published market ranges; not independently verified contractor quotes", "Site-specific rules and professional review required"],
+        "estimated_total": total, "assumptions": ["Land excluded", "Third-party published market ranges; not independently verified contractor quotes", *([] if "coimbatore" in data.location.lower() else ["Current rate research is Coimbatore-specific; not calibrated for the selected location."]), "Site-specific rules and professional review required"],
     }
 
 
