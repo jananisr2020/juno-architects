@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ArrowDownRight, ArrowRight, Check, ChevronDown, Compass, House, IndianRupee, MapPin, Ruler, ShieldCheck, Sparkles } from 'lucide-react';
-import { calculateFeasibility, type FinishLevel, type ProjectInput } from './lib/feasibility';
+import { calculateFeasibility, RATE_CONFIGURATION, type FinishLevel, type ProjectInput } from './lib/feasibility';
 import PlanWorkspace from './components/PlanWorkspace';
 
 const money = (value: number) => new Intl.NumberFormat('en-IN', {
@@ -146,6 +146,11 @@ export default function App() {
             <div className="breakdown-total"><span>Illustrative total</span><strong>{money(result.estimatedTotal)}</strong></div>
           </div>
           <div className="warning-note"><ShieldCheck size={19} /><p><strong>Important:</strong> Rate is a placeholder planning assumption, not a verified current Coimbatore/Tamil Nadu quote. Land, unusual foundations, major retaining work, interiors, compound wall, borewell/septic and other site-specific items may be excluded. Local rules, setbacks, FSI and approvals need qualified local review.</p></div>
+          <div className="rate-provenance">
+            <strong>Rate provenance</strong>
+            <p>Configuration {result.rateVersion} · {result.rateStatus} · Region: {RATE_CONFIGURATION.region}. The references below are government benchmark documents, not proof that the placeholder rates match today's private residential quotes.</p>
+            <ul>{RATE_CONFIGURATION.benchmarkReferences.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.name}</a> <span>({source.effective_date}; {source.scope})</span></li>)}</ul>
+          </div>
           <button className="secondary-button" onClick={() => { setSubmitted(false); document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' }); }}>Adjust my details <ArrowDownRight size={16} /></button>
         </section>
       )}
