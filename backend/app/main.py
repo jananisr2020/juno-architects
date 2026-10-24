@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import json
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Any, Generator
 from uuid import uuid4
@@ -19,6 +21,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./juno_architects.db")
 JWT_SECRET = os.getenv("JWT_SECRET", "")
 JWT_ALGORITHM = "HS256"
 TOKEN_MINUTES = 60
+RATE_CONFIGURATION = json.loads((Path(__file__).resolve().parents[2] / "shared" / "rates.v1.json").read_text(encoding="utf-8"))
 password_hash = PasswordHasher()
 bearer = HTTPBearer(auto_error=False)
 
@@ -213,8 +216,7 @@ def login(data: LoginInput, db: Session = Depends(get_db)) -> TokenOutput:
 
 @app.post("/api/v1/feasibility")
 def feasibility(data: FeasibilityInput) -> dict[str, Any]:
-    rates = {"basic": 1800, "standard": 2200, "premium": 2800}
-    rate = rates[data.finish]
+    rate = RATE_CONFIGURATION["rates"][data.finish]
     base = data.budget / 1.21
     site = base * 0.05
     professional = base * 0.05
@@ -223,8 +225,8 @@ def feasibility(data: FeasibilityInput) -> dict[str, Any]:
     area_high = base / rate
     plot_area = data.plot_width_ft * data.plot_depth_ft
     return {
-        "plot_area_sq_ft": plot_area, "rate_per_sq_ft": rate, "rate_version": "illustrative-2026-10-v1",
-        "rate_status": "unverified-placeholder", "area_low_sq_ft": min(area_high * 0.85, plot_area * data.floors),
+        "plot_area_sq_ft": plot_area, "rate_per_sq_ft": rate, "rate_version": RATE_CONFIGURATION["configuration_id"],
+        "rate_status": RATE_CONFIGURATION["source_status"], "area_low_sq_ft": min(area_high * 0.85, plot_area * data.floors),
         "area_high_sq_ft": min(area_high, plot_area * data.floors), "base_construction": base,
         "site_allowance": site, "professional_allowance": professional, "contingency": contingency,
         "estimated_total": total, "assumptions": ["Land excluded", "Illustrative rate only; not a local quote", "Site-specific rules and professional review required"],
