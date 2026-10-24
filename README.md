@@ -1,32 +1,41 @@
 # Juno Architects
 
-AI-assisted concept planning and budget feasibility for homes, starting with Tamil Nadu, India.
+Original concept planning and early budget feasibility for homes, starting with Tamil Nadu, India.
 
-> **Safety and scope:** Juno Architects is a concept-planning and early budgeting tool, not a substitute for a licensed architect, structural engineer, surveyor, or local approval authority. Generated layouts and cost figures must be checked before construction. Never represent an unreviewed concept as permit-ready or structurally safe.
+> **Safety and scope:** Juno Architects is an early concept-planning tool, not a substitute for a licensed architect, structural engineer, surveyor, or local approval authority. Generated layouts and cost figures must be checked before construction. Never represent an unreviewed concept as permit-ready or structurally safe.
 
-## Product goals
+## Implemented in the repository
 
-- Collect a small set of essential inputs: location, plot dimensions, budget, building type, floors, and room needs.
-- Estimate feasible built-up area against a transparent, region-aware cost model.
-- Generate original concept layouts from a structured building model rather than copying existing architectural drawings.
-- Keep 2D plans, area calculations, and cost estimates consistent with that model.
-- Save projects and compare alternatives when authentication and persistence are introduced.
-- Offer a free basic concept first; design memberships/customization can be evaluated after the MVP is validated.
+- Responsive React + TypeScript + Vite frontend.
+- Budget, location, plot dimensions, floor count, bedroom count, building type and finish inputs with validation.
+- Deterministic cost/area calculator with itemized allowances, versioned shared rate configuration and visible source references.
+- Explicitly unverified placeholder construction rates; Tamil Nadu PWD/SOR benchmark references are documented, but the values have not been calibrated against the published table and current private quotes.
+- Original deterministic concept-layout generator with a canonical feet-based geometry model, plot/building bounds checks, room-overlap checks, and compact/balanced/open alternatives.
+- Dimensioned SVG floor-plan rendering, room-area schedule, and downloadable Markdown concept brief.
+- Browser-local project save/rename/duplicate/delete and version snapshots.
+- Optional FastAPI client for account-backed projects when VITE_API_BASE_URL is configured.
+- FastAPI API with Argon2id password hashing, short-lived bearer tokens, owner-scoped project CRUD, immutable numbered snapshots and PostgreSQL-compatible Alembic migration.
+- SEO metadata plus sitemap/robots/canonical generation when SITE_URL is configured.
+- GitHub Actions for frontend tests/build and backend tests/migration checks.
 
-## Current status
+## Honest current limitations
 
-The repository is being initialized. See [the product specification](docs/PRODUCT_SPEC.md), [architecture](docs/ARCHITECTURE.md), [roadmap and task tracker](docs/ROADMAP.md), and [cost-estimation policy](docs/COST_ESTIMATION.md).
+- The concept generator is deterministic, **not yet a generative-AI design model**. It is not a full architectural layout solver and does not handle doors/windows, stairs, room connectivity, ventilation, structural systems, setbacks, FSI or local building-code compliance.
+- Cost rates remain illustrative and unverified. Official reference documents do not by themselves validate the placeholder rates for private residential work.
+- Local projects remain on the current browser/device. Cloud accounts require a separately deployed API, private PostgreSQL database, a production JWT secret and exact CORS/frontend URL configuration.
+- Email verification, password reset, rate limiting, account deletion, backup/restore drills, security review and production API deployment remain before public account launch.
+- No production deployment is claimed until a live URL, database migration, health check and smoke tests are verified.
 
-## Planned stack
+## Repository guides
 
-- Frontend: React, TypeScript, Vite
-- API: Python, FastAPI
-- Cost engine: deterministic, tested Python calculations with dated/versioned rate assumptions
-- Geometry: canonical structured plan model; SVG 2D renderer first, 3D viewer later
-- Persistence: PostgreSQL when project accounts/saved projects are added
-- CI: GitHub Actions for frontend and backend checks
-
-The first milestone deliberately prioritizes a working, explainable feasibility calculator before AI-generated geometry or 3D rendering.
+- [Product specification](docs/PRODUCT_SPEC.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Roadmap and task tracker](docs/ROADMAP.md)
+- [Cost-estimation policy and source references](docs/COST_ESTIMATION.md)
+- [Privacy and retention](docs/PRIVACY.md)
+- [API setup and endpoint guide](backend/README.md)
+- [Deployment checklist](docs/DEPLOYMENT.md)
+- [Security guidance](SECURITY.md)
 
 ## Local development
 
@@ -37,26 +46,34 @@ npm install
 npm run dev
 ```
 
-### Backend (once the API scaffold is added)
+For production SEO metadata, set SITE_URL to the final HTTPS origin before running npm run build. The build will generate sitemap.xml, robots.txt and the canonical URL from that value. If SITE_URL is absent, it skips absolute sitemap/canonical generation rather than inventing a domain.
+
+### Backend
+
+Use Python 3.11+. From the repository root:
 
 ```bash
-cd backend
 python -m venv .venv
-# Windows PowerShell: .venv\Scripts\Activate.ps1
+# Windows PowerShell: .venv\\Scripts\\Activate.ps1
 # macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+python -m pip install -e ".[test]"
 ```
 
-## Environment variables
+Set DATABASE_URL, JWT_SECRET (random, at least 32 characters), and FRONTEND_ORIGINS. Then run:
 
-Do not commit secrets. A future backend will use environment variables for database credentials and any optional AI provider key. The core feasibility calculator must work without a paid AI API.
+```bash
+alembic upgrade head
+uvicorn backend.app.main:app --reload
+pytest -q
+```
+
+See [backend/README.md](backend/README.md) for details.
 
 ## Principles
 
 1. **Original output:** use general design principles as inspiration, not copied plans, drawings, text, or assets.
-2. **Explain assumptions:** every estimate should disclose rate source, effective date, inclusions, exclusions, and uncertainty.
-3. **Geometry before imagery:** a floor plan must be represented as structured data so area, labels, exports, and future 3D views agree.
+2. **Explain assumptions:** disclose source, effective date, inclusions, exclusions and uncertainty.
+3. **Geometry before imagery:** 2D plans, room areas, exports and future 3D views should derive from one structured model.
 4. **Human review:** regulatory compliance and structural safety require qualified local professionals.
-5. **No fake live prices:** never call benchmark assumptions a current quote unless verified against a current source.
-6. **Small, testable increments:** every completed task should have a code change, test/evidence, and tracker update.
+5. **No fake live prices:** never call benchmark assumptions a current quote unless verified against current sources.
+6. **Small, testable increments:** completed tasks should have a code change, tests/evidence, and a tracker update.
