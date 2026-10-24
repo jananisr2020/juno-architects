@@ -12,8 +12,8 @@
   "rates": {
     "basic": {
       "low": 1500,
-      "high": 1800,
-      "representative": 1650
+      "high": 2100,
+      "representative": 1800
     },
     "standard": {
       "low": 1850,
