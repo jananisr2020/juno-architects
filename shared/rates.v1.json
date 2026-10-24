@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "configuration_id": "illustrative-2026-10-v1",
+  "region": "Tamil Nadu, India",
+  "effective_date": "2026-10-24",
+  "checked_date": "2026-10-24",
+  "source_status": "unverified-placeholder",
+  "source_name": null,
+  "source_url": null,
+  "currency": "INR",
+  "unit": "built-up-square-foot",
+  "rates": {
+    "basic": 1800,
+    "standard": 2200,
+    "premium": 2800
+  },
+  "inclusions": [
+    "Illustrative base construction allowance only"
+  ],
+  "exclusions": [
+    "Land",
+    "Site-specific foundation and retaining work",
+    "Interiors and furniture",
+    "Compound wall",
+    "Borewell and septic",
+    "Applicable taxes not already included"
+  ],
+  "production_note": "Benchmark documents are identified, but the placeholder rates below have not been derived from the documents or validated against dated Coimbatore private-contractor quotes. Do not present them as verified current market rates.",
+  "benchmark_references": [
+    {
+      "name": "Tamil Nadu Government Schedule of Rates 2025-2026, Volume I",
+      "effective_date": "2025-07-22",
+      "url": "https://tnpwdea.org/files/tn-pwd-13-09-2025-05-30-44-133.pdf",
+      "scope": "PWD, Highways and WRD item rates; basic rates exclude GST; Coimbatore Corporation labour/work allowance notes apply."
+    },
+    {
+      "name": "Plinth Area Rates for Rough Cost Estimates 2025-2026",
+      "effective_date": "2025-08-01",
+      "url": "https://tnpwdea.org/files/tn-pwd-13-09-2025-05-44-43-648.pdf",
+      "scope": "Rough cost benchmark reference; detailed rate table not transcribed into the app."
+    }
+  ]
+}
