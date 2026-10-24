@@ -15,7 +15,7 @@ export interface PlanModel {
 }
 export interface PlanInput { plotWidthFt: number; plotDepthFt: number; bedrooms: number; alternative?: PlanModel['metadata']['alternative'] }
 
-const MIN_ROOM_SIDE = 5;
+const MIN_ROOM_SIDE = 6;
 const EPSILON = 0.001;
 
 /** Generates an original, deterministic concept layout. Not a construction drawing. */
@@ -31,6 +31,11 @@ export function generatePlan(input: PlanInput): PlanModel {
   const corridor = alternative === 'compact' ? 0 : alternative === 'open' ? 0.06 : 0.04;
   const hallW = usableW * (0.34 + corridor);
   const privateW = usableW - hallW;
+  const bedroomRows = Math.ceil(bedrooms / 2);
+  const rowH = usableD / (bedroomRows + 1);
+  if (hallW < 7 || privateW / 2 < MIN_ROOM_SIDE || rowH < 7) {
+    throw new Error('Plot is too small for the selected room count; reduce bedrooms or increase plot dimensions.');
+  }
   const rooms: Room[] = [];
   const add = (id: string, name: string, kind: RoomKind, x: number, y: number, w: number, h: number) => {
     rooms.push({ id, name, kind, x, y, width: w, height: h });
@@ -38,8 +43,6 @@ export function generatePlan(input: PlanInput): PlanModel {
   const splitD = usableD * 0.48;
   add('living', 'Living / dining', 'living', inset, inset, hallW, splitD);
   add('kitchen', 'Kitchen', 'kitchen', inset, inset + splitD, hallW, usableD - splitD);
-  const bedroomRows = Math.ceil(bedrooms / 2);
-  const rowH = usableD / (bedroomRows + 1);
   for (let i = 0; i < bedrooms; i++) {
     const col = i % 2;
     const row = Math.floor(i / 2);
@@ -50,7 +53,7 @@ export function generatePlan(input: PlanInput): PlanModel {
     add(`bedroom-${i + 1}`, `Bedroom ${i + 1}`, 'bedroom', x, y, w, h);
   }
   const remainingY = inset + bedroomRows * rowH;
-  const remainingH = Math.max(MIN_ROOM_SIDE, inset + usableD - remainingY);
+  const remainingH = inset + usableD - remainingY;
   add('bathroom', 'Bath / utility', 'bathroom', inset + hallW, remainingY, privateW, Math.min(remainingH, usableD - bedroomRows * rowH));
   const plan: PlanModel = {
     schemaVersion: 1,
