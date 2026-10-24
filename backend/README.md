@@ -1,50 +1,43 @@
 # Juno Architects API
 
-FastAPI backend for feasibility calculations and account-scoped concept projects.
+FastAPI backend for indicative feasibility calculations, account-scoped concept projects and professional review requests.
 
 ## Local setup
 
-Use Python 3.11 or newer.
+Use Python 3.11 or newer. From the repository root:
 
-```bash
-python -m venv .venv
-# Windows PowerShell: .venv\\Scripts\\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
-python -m pip install -e ".[test]"
-```
+    python -m venv .venv
+    # Windows PowerShell: .venv\Scripts\Activate.ps1
+    # macOS/Linux: source .venv/bin/activate
+    python -m pip install -e ".[test]"
 
-Set environment variables before starting:
+Set DATABASE_URL, JWT_SECRET (random, at least 32 characters), FRONTEND_ORIGINS (exact browser origins), and REVIEW_ADMIN_TOKEN (separate random secret for reviewer operations).
 
-- DATABASE_URL: PostgreSQL URL, e.g. postgresql+psycopg://user:password@host:5432/juno
-- JWT_SECRET: cryptographically random secret with at least 32 characters
-- FRONTEND_ORIGINS: comma-separated exact browser origins, e.g. http://localhost:5173
-- JUNO_AUTO_CREATE_TABLES: only set to true for disposable local development; production uses migrations
+For local PostgreSQL plus API, use docker compose up --build. The credentials in docker-compose.yml are local development only and must never be reused in production.
 
 Apply migrations and start the server:
 
-```bash
-alembic upgrade head
-uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
-```
+    alembic upgrade head
+    uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
 
-Health endpoint: GET /health. Interactive API schema: /docs (disable or protect it if production policy requires).
+- GET /health is liveness.
+- GET /health/ready verifies the database connection.
+- Interactive API schema is at /docs.
 
-## Implemented endpoints
+## Endpoints
+- POST /api/v1/auth/register and /login — account creation/login; email verification delivery is not configured yet.
+- POST /api/v1/feasibility — transparent cost and supported-area range from the shared market-band configuration.
+- GET/POST /api/v1/projects — list/create current user's projects.
+- GET/PATCH/DELETE /api/v1/projects/{id} — read/rename/delete owned projects.
+- POST /api/v1/projects/{id}/duplicate and /snapshots — duplicate and append immutable version snapshots.
+- GET /api/v1/account/export — export the authenticated user's account, projects and review requests.
+- DELETE /api/v1/account — delete the account after current-password confirmation.
+- POST /api/v1/projects/{id}/review-requests and GET /api/v1/review-requests — create/list user-owned review requests.
+- PATCH /api/v1/review-requests/{id} — reviewer-only status update with X-Review-Admin-Token.
 
-- POST /api/v1/auth/register — email + minimum 12-character password
-- POST /api/v1/auth/login — bearer token
-- POST /api/v1/feasibility — validated indicative calculation
-- GET/POST /api/v1/projects — list/create projects for current user
-- GET/PATCH/DELETE /api/v1/projects/{id} — read/rename/delete owned project
-- POST /api/v1/projects/{id}/duplicate — duplicate project and snapshots
-- POST /api/v1/projects/{id}/snapshots — append a versioned immutable payload
+Passwords use argon2-cffi's Argon2id password hashing. Project lookups are owner-scoped and return 404 for another user's IDs. The API does not log request bodies or bearer tokens by design.
 
-Passwords use argon2-cffi's Argon2id password hashing. Project lookups are owner-scoped and return 404 for another user's IDs. The API does not store bearer tokens or passwords in project payloads.
+## Security and production requirements
+The app has in-memory per-IP limits, but multi-instance production should use a shared Redis/gateway limiter. Configure HTTPS, private PostgreSQL, exact CORS, separate secrets, database backups and a tested restore. Email verification and password reset still require an approved mail provider. Reviewer operations require a secret kept only on the API service; no review request implies professional assignment or building approval.
 
-## Frontend integration
-
-Set VITE_API_BASE_URL in the frontend build environment to the deployed API base URL. Set FRONTEND_ORIGINS on the API to the exact deployed frontend origin. Never expose DATABASE_URL or JWT_SECRET through Vite variables.
-
-## Before public launch
-
-Rate limiting, email verification, password reset, account deletion, privacy request workflow, database backup/restore drills, structured logging, dependency scanning, security review, and a verified production deployment are still required. The feasibility rates are placeholders until dated local source documents and current contractor quotations are reviewed.
+Rates are third-party published Coimbatore market ranges, not independently verified quotes and not calibrated for other cities. See docs/COST_ESTIMATION.md. Regional rule links are reference-only; no compliance calculation is performed.
