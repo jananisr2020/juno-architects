@@ -9,7 +9,7 @@ from typing import Any, Generator
 from uuid import uuid4
 
 import jwt
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from argon2 import PasswordHasher
@@ -282,7 +282,7 @@ def list_my_review_requests(user: User = Depends(current_user), db: Session = De
 
 
 @app.patch("/api/v1/review-requests/{review_id}")
-def decide_professional_review(review_id: str, data: ReviewDecision, x_review_admin_token: str | None = None, db: Session = Depends(get_db)) -> dict[str, Any]:
+def decide_professional_review(review_id: str, data: ReviewDecision, x_review_admin_token: str | None = Header(default=None), db: Session = Depends(get_db)) -> dict[str, Any]:
     # Separate secret for reviewer operations; never reuse the public JWT secret.
     if not REVIEW_ADMIN_TOKEN or not x_review_admin_token or not secrets.compare_digest(x_review_admin_token, REVIEW_ADMIN_TOKEN):
         raise HTTPException(status_code=401, detail="Reviewer authorization required.")
