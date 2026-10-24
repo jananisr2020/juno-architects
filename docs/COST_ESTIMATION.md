@@ -20,7 +20,7 @@ Sources:
 - [Tamil Nadu PWD Schedule of Rates 2025–26, Volume I](https://tnpwdea.org/files/tn-pwd-13-09-2025-05-30-44-133.pdf), effective 22 July 2025; item rates exclude GST and other taxes.
 - [Tamil Nadu PWD downloads — Plinth Area Rates for Rough Cost Estimates 2025–26](https://tnpwdea.org/downloads.php?category_id=5), effective 1 August 2025.
 
-Official PWD schedules are useful public-works references but are not automatically interchangeable with private turnkey quotes. Do not label the published market bands as verified, guaranteed, or officially approved. Obtain multiple dated local quotations with identical inclusions before upgrading the status.
+Official PWD schedules are useful public-works references but are not automatically interchangeable with private turnkey quotes. Do not label the published market bands as verified, guaranteed, or officially approved. Obtain multiple dated local quotations with identical inclusions before upgrading the status. Use the structured [contractor quote template](../data/contractor-quote-template.csv) to capture scope, exclusions, taxes, area basis and verification evidence.
 
 ## Breakdown
 1. Base construction benchmark using the selected rate band.
