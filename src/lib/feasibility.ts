@@ -16,6 +16,8 @@ export interface ProjectInput {
 export interface FeasibilityResult {
   plotArea: number;
   ratePerSqFt: number;
+  rateLow: number;
+  rateHigh: number;
   areaLow: number;
   areaHigh: number;
   baseConstruction: number;
@@ -65,7 +67,10 @@ export function calculateFeasibility(input: ProjectInput): FeasibilityResult {
   if (!['basic', 'standard', 'premium'].includes(input.finish)) throw new Error('Choose a supported finish level.');
   if (!['Independent house', 'Duplex home', 'Rental / multi-unit home'].includes(input.buildingType)) throw new Error('Choose a supported building type.');
 
-  const ratePerSqFt = RATE_CONFIGURATION.rates[input.finish];
+  const selectedRate = RATE_CONFIGURATION.rates[input.finish];
+  const ratePerSqFt = selectedRate.representative;
+  const rateLow = selectedRate.low;
+  const rateHigh = selectedRate.high;
   const plotArea = input.plotWidthFt * input.plotDepthFt;
   const baseConstruction = input.budget / 1.21;
   const siteAllowance = baseConstruction * 0.05;
@@ -74,12 +79,15 @@ export function calculateFeasibility(input: ProjectInput): FeasibilityResult {
   const contingency = subtotal * 0.1;
   const estimatedTotal = subtotal + contingency;
   const grossPlotCapacity = plotArea * input.floors;
-  const areaHigh = Math.min(baseConstruction / ratePerSqFt, grossPlotCapacity);
+  const areaLow = Math.min(baseConstruction / rateHigh, grossPlotCapacity);
+  const areaHigh = Math.min(baseConstruction / rateLow, grossPlotCapacity);
 
   return {
     plotArea,
     ratePerSqFt,
-    areaLow: areaHigh * 0.85,
+    rateLow,
+    rateHigh,
+    areaLow,
     areaHigh,
     baseConstruction,
     siteAllowance,
@@ -90,7 +98,7 @@ export function calculateFeasibility(input: ProjectInput): FeasibilityResult {
     rateStatus: RATE_CONFIGURATION.sourceStatus,
     assumptions: [
       'Land purchase excluded.',
-      'Construction rates are unverified placeholders, not current local quotes.',
+      'Construction rates are third-party published market ranges, not independently verified contractor quotations.',
       'Gross plot capacity is a mathematical ceiling, not buildable area; setbacks, FSI, coverage, ventilation and approvals require local review.',
       'Site, utility, professional and contingency allowances are provisional.',
     ],
