@@ -9,6 +9,7 @@ from sqlalchemy.pool import StaticPool
 
 import backend.app.main as api
 from backend.app.main import Base, app, get_db
+api.limiter.enabled = False
 
 test_engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
 TestSession = sessionmaker(bind=test_engine, autoflush=False, expire_on_commit=False)
@@ -112,3 +113,12 @@ def test_professional_review_request_is_owner_scoped_and_has_reviewer_workflow(m
     assert decided.json()["status"] == "needs_changes"
     assert "licensed professional" in decided.json()["reviewer_note"]
     assert client.get("/api/v1/review-requests", headers=owner_headers).json()[0]["status"] == "needs_changes"
+
+def test_account_deletion_requires_password_and_removes_owned_projects():
+    headers = register("delete-account@example.com")
+    project = client.post("/api/v1/projects", headers=headers, json={"title":"Delete me","payload":{}}).json()
+    bad = client.request("DELETE", "/api/v1/account", headers=headers, json={"password":"not-the-password"})
+    assert bad.status_code == 401
+    good = client.request("DELETE", "/api/v1/account", headers=headers, json={"password":"correct-horse-battery-staple"})
+    assert good.status_code == 204
+    assert client.get(f"/api/v1/projects/{project['id']}", headers=headers).status_code == 401
