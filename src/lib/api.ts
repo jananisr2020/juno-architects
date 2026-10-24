@@ -40,3 +40,19 @@ export function deleteApiProject(baseUrl: string, token: string, id: string): Pr
 export function addApiSnapshot(baseUrl: string, token: string, id: string, payload: Record<string, unknown>): Promise<ApiProject> {
   return request<ApiProject>(baseUrl, `/api/v1/projects/${encodeURIComponent(id)}/snapshots`, token, { method: 'POST', body: JSON.stringify(payload) });
 }
+
+export interface ProfessionalReviewRequest {
+  id: string;
+  project_id: string;
+  status: 'requested' | 'accepted' | 'needs_changes' | 'completed' | 'declined';
+  note: string;
+  reviewer_note: string;
+  created_at: string;
+  updated_at: string;
+}
+export function requestProfessionalReview(baseUrl: string, token: string, projectId: string, note: string): Promise<ProfessionalReviewRequest> {
+  return request<ProfessionalReviewRequest>(baseUrl, `/api/v1/projects/${encodeURIComponent(projectId)}/review-requests`, token, { method: 'POST', body: JSON.stringify({ note }) });
+}
+export function listProfessionalReviews(baseUrl: string, token: string): Promise<ProfessionalReviewRequest[]> {
+  return request<ProfessionalReviewRequest[]>(baseUrl, '/api/v1/review-requests', token);
+}
