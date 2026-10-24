@@ -29,7 +29,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
 
   async function save() {
     if (!plan) return;
-    const input = { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, location };
+    const input = { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, location };
     createProject(input, plan);
     setProjects(listProjects());
     if (apiToken && apiBase) {
@@ -89,7 +89,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
     if (!apiToken || !apiBase || !plan) return;
     try {
       const updated = await addApiSnapshot(apiBase, apiToken, project.id, {
-        input: { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, location }, plan,
+        input: { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, location }, plan,
       });
       setCloudProjects(current => current.map(p => p.id === project.id ? updated : p));
       setNotice(`New version saved to “${project.title}”.`);
@@ -142,7 +142,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
   function newLocalVersion(p: LocalProject) {
     if (!plan) return;
     try {
-      addSnapshot(p.id, { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, location }, plan);
+      addSnapshot(p.id, { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, location }, plan);
       setProjects(listProjects()); setNotice(`New version saved to “${p.title}”.`);
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not save a new version.'); }
   }
