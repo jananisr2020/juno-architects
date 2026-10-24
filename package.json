@@ -13,16 +13,16 @@
     "postbuild": "node scripts/seo.mjs post"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "vite": "^6.0.5"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^5.2.0",
     "typescript": "~5.7.2",
-    "vitest": "^2.1.8"
+    "vite": "^6.4.5",
+    "vitest": "^5.0.5"
   }
 }
