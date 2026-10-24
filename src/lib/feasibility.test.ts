@@ -17,7 +17,9 @@ describe('calculateFeasibility', () => {
     const result = calculateFeasibility(sample);
     expect(result.estimatedTotal).toBeCloseTo(sample.budget, 6);
     expect(result.plotArea).toBe(1200);
-    expect(result.ratePerSqFt).toBe(2200);
+    expect(result.ratePerSqFt).toBe(2225);
+    expect(result.rateLow).toBe(1850);
+    expect(result.rateHigh).toBe(2600);
     expect(result.areaLow).toBeLessThan(result.areaHigh);
   });
 
@@ -51,3 +53,13 @@ describe('calculateFeasibility', () => {
     expect(() => calculateFeasibility({ ...sample, buildingType: 'Unknown type' })).toThrow(/building type/i);
     expect(() => calculateFeasibility({ ...sample, plotWidthFt: 1200 })).toThrow(/supported planning range/i);
   });
+
+describe('market rate range', () => {
+  it('produces a wider supported-area range for the selected finish band', () => {
+    const result = calculateFeasibility(sample);
+    expect(result.rateLow).toBeLessThan(result.ratePerSqFt);
+    expect(result.ratePerSqFt).toBeLessThan(result.rateHigh);
+    expect(result.areaLow).toBeLessThanOrEqual(result.areaHigh);
+    expect(result.rateStatus).toBe('third-party-market-range-not-verified');
+  });
+});
