@@ -1,28 +1,35 @@
 # Cost-estimation policy
 
 ## Purpose
-An early planning benchmark, not a binding contractor quote.
+A transparent early planning range, not a binding contractor quote or professional quantity survey.
+
+## Current Coimbatore research configuration
+The frontend and API consume the same versioned file at shared/rates.v1.json. Configuration ID: market-range-2026-10-v2, checked 24 October 2026.
+
+| Finish | Published research range | Representative midpoint |
+|---|---:|---:|
+| Basic | ₹1,500–₹2,100/sq ft | ₹1,800/sq ft |
+| Standard | ₹1,850–₹2,600/sq ft | ₹2,225/sq ft |
+| Premium | ₹2,550–₹4,000/sq ft | ₹3,275/sq ft |
+
+These bands are transcribed from a third-party Coimbatore market article dated 23 July 2026. A second third-party calculator reports standard construction at ₹1,895–₹2,454/sq ft as of 12 August 2026. They are not independently verified contractor quotes, and their scopes may differ. The midpoint is used only to show a representative planning scenario; the supported-area range is calculated using both low and high rates.
+
+Sources:
+- [House Construction Cost in Coimbatore (23 July 2026)](https://infraura.com/house-construction-cost-coimbatore/)
+- [Construction Cost in Coimbatore (updated 12 August 2026)](https://www.infralens.in/prices/coimbatore)
+- [Tamil Nadu PWD Schedule of Rates 2025–26, Volume I](https://tnpwdea.org/files/tn-pwd-13-09-2025-05-30-44-133.pdf), effective 22 July 2025; item rates exclude GST and other taxes.
+- [Tamil Nadu PWD downloads — Plinth Area Rates for Rough Cost Estimates 2025–26](https://tnpwdea.org/downloads.php?category_id=5), effective 1 August 2025.
+
+Official PWD schedules are useful public-works references but are not automatically interchangeable with private turnkey quotes. Do not label the published market bands as verified, guaranteed, or officially approved. Obtain multiple dated local quotations with identical inclusions before upgrading the status.
 
 ## Breakdown
-1. Base construction benchmark (built-up area multiplied by selected rate).
-2. Site preparation and utilities allowance, where applicable.
-3. Professional design, survey, and approval allowance.
+1. Base construction benchmark using the selected rate band.
+2. Provisional site and utilities allowance.
+3. Provisional professional design, survey and approval allowance.
 4. Contingency.
-5. Explicit exclusions, such as land, unusual foundations, major retaining work, interiors/furniture, compound wall, borewell/septic, and taxes not already included.
+5. Explicit exclusions such as land, unusual foundations, major retaining work, interiors/furniture, compound wall, borewell/septic and taxes not already included.
 
-Avoid double-counting items included in the selected rate.
+The current calculator applies 5% site/utilities, 5% professional/approval and 10% contingency on the subtotal as explicit planning assumptions. Validate scope and avoid double-counting inclusions before using a real quotation.
 
-## Rate provenance
-Every rate must include region, category, value and unit, source name and document/URL, publication/effective date, date checked, configuration version, and inclusion/exclusion notes. Candidate references to verify before production include the applicable Tamil Nadu PWD Schedule of Rates, CPWD Plinth Area Rates, and recent local contractor/supplier quotes. These measure different scopes and are not interchangeable.
-
-## Illustrative arithmetic only
-1,000 sq ft × ₹2,000/sq ft = ₹20,00,000 base construction. If site/utilities are assumed at ₹1,00,000 and professional/approval costs at ₹1,00,000, subtotal is ₹22,00,000. A 10% contingency on that subtotal is ₹2,20,000, for an illustrative total of ₹24,20,000. These are assumptions, not current Tamil Nadu rates or a quote.
-
-## UX and safety
-Use “early benchmark” and “indicative range”; show source and rate date. If regional rates are not verified, label the result an unverified planning scenario. Cost does not establish legal buildability. Setbacks, FSI/FAR, coverage, height, access, soil, and local rules require site-specific review. Never label a concept approved, permit-ready, or structurally safe without qualified professional review.
-## Verified Tamil Nadu benchmark references (checked 24 October 2026)
-
-1. **Tamil Nadu Government Schedule of Rates 2025–2026, Volume I** — effective 22 July 2025; covers PWD, Highways and Water Resources; published basic rates exclude GST and other taxes. The general notes list a 10% extra allowance on labour and rates of works for works in Coimbatore Corporation limits. This is a public-works item-rate schedule, not a direct private-home turnkey quote. Source PDF: https://tnpwdea.org/files/tn-pwd-13-09-2025-05-30-44-133.pdf
-2. **Plinth Area Rates for Rough Cost Estimates 2025–2026** — listed as effective 1 August 2025 in the Tamil Nadu Public Works Department Engineers Association's PWD downloads index. This is the more relevant document to inspect for a plinth-area benchmark, but its detailed table must be transcribed and scope-matched before any rate is used in the calculator. Index: https://tnpwdea.org/downloads.php?category_id=5 ; listed PDF: https://tnpwdea.org/files/tn-pwd-13-09-2025-05-44-43-648.pdf
-
-The 2025–26 references are the latest sources verified in this implementation pass, not proof that these are the current 2026–27 private residential market rates. The detailed plinth-area PDF could not be fully extracted in this pass, and no dated Coimbatore private-contractor quotations have been collected. Accordingly, the app's ₹1,800/₹2,200/₹2,800 per-sq-ft values remain explicitly **unverified illustrative placeholders**. Do not upgrade the rate status until the exact building type, finish, included items, taxes, date and local quotation sample are documented and reviewed by a qualified estimator.
+## Regional rules and safety
+Regional rule links are listed in shared/regional-rules.v1.json, but they are reference-only and not machine-applied. The Tamil Nadu Combined Development and Building Rules have amendments; check the latest Gazette and local authority. Cost does not establish legal buildability. Setbacks, FSI/FAR, coverage, height, access, soil and local approvals require site-specific professional review. Never label a concept approved, permit-ready or structurally safe without qualified professional review.
