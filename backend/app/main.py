@@ -9,7 +9,8 @@ import jwt
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pwdlib import PasswordHash
+from argon2 import PasswordHasher
+from argon2.exceptions import VerificationError, VerifyMismatchError
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, create_engine, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
@@ -18,7 +19,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./juno_architects.db")
 JWT_SECRET = os.getenv("JWT_SECRET", "")
 JWT_ALGORITHM = "HS256"
 TOKEN_MINUTES = 60
-password_hash = PasswordHash.recommended()
+password_hash = PasswordHasher()
 bearer = HTTPBearer(auto_error=False)
 
 
@@ -199,7 +200,13 @@ def register(data: RegisterInput, db: Session = Depends(get_db)) -> TokenOutput:
 def login(data: LoginInput, db: Session = Depends(get_db)) -> TokenOutput:
     email = data.email.strip().lower()
     user = db.scalar(select(User).where(User.email == email))
-    if user is None or not password_hash.verify(data.password, user.password_digest):
+    valid_password = False
+    if user is not None:
+        try:
+            valid_password = password_hash.verify(user.password_digest, data.password)
+        except (VerifyMismatchError, VerificationError):
+            valid_password = False
+    if not valid_password:
         raise HTTPException(status_code=401, detail="Email or password is incorrect.")
     return TokenOutput(access_token=issue_token(user))
 
