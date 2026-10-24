@@ -99,6 +99,7 @@ export function calculateFeasibility(input: ProjectInput): FeasibilityResult {
     assumptions: [
       'Land purchase excluded.',
       'Construction rates are third-party published market ranges, not independently verified contractor quotations.',
+      ...(input.location.toLowerCase().includes('coimbatore') ? [] : ['Current price research is Coimbatore-specific; this rate band is not calibrated for the selected location.']),
       'Gross plot capacity is a mathematical ceiling, not buildable area; setbacks, FSI, coverage, ventilation and approvals require local review.',
       'Site, utility, professional and contingency allowances are provisional.',
     ],
