@@ -37,6 +37,7 @@ def register(email="one@example.com"):
 
 def test_health_and_feasibility_are_available():
     assert client.get("/health").json()["status"] == "ok"
+    assert client.get("/health/ready").json()["database"] == "reachable"
     response = client.post("/api/v1/feasibility", json={"budget":2000000,"plot_width_ft":30,"plot_depth_ft":40,"floors":1,"bedrooms":2,"finish":"standard","location":"Coimbatore"})
     assert response.status_code == 200
     assert response.json()["rate_status"] == "third-party-market-range-not-verified"
@@ -122,3 +123,14 @@ def test_account_deletion_requires_password_and_removes_owned_projects():
     good = client.request("DELETE", "/api/v1/account", headers=headers, json={"password":"correct-horse-battery-staple"})
     assert good.status_code == 204
     assert client.get(f"/api/v1/projects/{project['id']}", headers=headers).status_code == 401
+
+def test_account_export_includes_only_the_authenticated_users_data():
+    headers = register("export-me@example.com")
+    client.post("/api/v1/projects", headers=headers, json={"title":"Export project","payload":{"budget":1234567}})
+    exported = client.get("/api/v1/account/export", headers=headers)
+    assert exported.status_code == 200
+    body = exported.json()
+    assert body["account"]["email"] == "export-me@example.com"
+    assert len(body["projects"]) == 1
+    assert body["projects"][0]["title"] == "Export project"
+    assert client.get("/api/v1/account/export").status_code == 401
