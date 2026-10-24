@@ -37,7 +37,11 @@ def test_health_and_feasibility_are_available():
     assert client.get("/health").json()["status"] == "ok"
     response = client.post("/api/v1/feasibility", json={"budget":2000000,"plot_width_ft":30,"plot_depth_ft":40,"floors":1,"bedrooms":2,"finish":"standard","location":"Coimbatore"})
     assert response.status_code == 200
-    assert response.json()["rate_status"] == "unverified-placeholder"
+    assert response.json()["rate_status"] == "third-party-market-range-not-verified"
+    assert response.json()["rate_low"] == 1850
+    assert response.json()["rate_per_sq_ft"] == 2225
+    assert response.json()["rate_high"] == 2600
+    assert response.json()["area_low_sq_ft"] <= response.json()["area_high_sq_ft"]
     assert response.json()["estimated_total"] == pytest.approx(2000000)
 
 def test_auth_and_duplicate_email():
