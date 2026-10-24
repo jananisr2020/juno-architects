@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+import backend.app.main as api
 from backend.app.main import Base, app, get_db
 
 test_engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
@@ -71,3 +72,43 @@ def test_projects_require_auth_and_are_owner_scoped():
     other_headers = register("other@example.com")
     assert client.get(f"/api/v1/projects/{project['id']}", headers=other_headers).status_code == 404
     assert client.delete(f"/api/v1/projects/{project['id']}", headers=other_headers).status_code == 404
+
+def test_professional_review_request_is_owner_scoped_and_has_reviewer_workflow(monkeypatch):
+    owner_headers = register("review-owner@example.com")
+    created = client.post("/api/v1/projects", headers=owner_headers, json={"title":"Review me","payload":{"plan":{"schemaVersion":1}}})
+    project_id = created.json()["id"]
+
+    requested = client.post(
+        f"/api/v1/projects/{project_id}/review-requests",
+        headers=owner_headers,
+        json={"note":"Please review circulation and room proportions."},
+    )
+    assert requested.status_code == 201
+    review = requested.json()
+    assert review["status"] == "requested"
+    assert review["project_id"] == project_id
+
+    other_headers = register("review-other@example.com")
+    assert client.post(
+        f"/api/v1/projects/{project_id}/review-requests",
+        headers=other_headers,
+        json={"note":"Should not be allowed"},
+    ).status_code == 404
+    assert client.get("/api/v1/review-requests", headers=other_headers).json() == []
+
+    assert client.patch(
+        f"/api/v1/review-requests/{review['id']}",
+        headers={"X-Review-Admin-Token":"wrong"},
+        json={"status":"completed","reviewer_note":"Reviewed"},
+    ).status_code == 401
+
+    monkeypatch.setattr(api, "REVIEW_ADMIN_TOKEN", "test-review-admin-token")
+    decided = client.patch(
+        f"/api/v1/review-requests/{review['id']}",
+        headers={"X-Review-Admin-Token":"test-review-admin-token"},
+        json={"status":"needs_changes","reviewer_note":"Please ask a licensed professional to review the stair and ventilation provisions."},
+    )
+    assert decided.status_code == 200
+    assert decided.json()["status"] == "needs_changes"
+    assert "licensed professional" in decided.json()["reviewer_note"]
+    assert client.get("/api/v1/review-requests", headers=owner_headers).json()[0]["status"] == "needs_changes"
