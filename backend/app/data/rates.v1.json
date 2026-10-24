@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "configuration_id": "illustrative-2026-10-v1",
+  "region": "Tamil Nadu, India",
+  "effective_date": "2026-10-24",
+  "checked_date": "2026-10-24",
+  "source_status": "unverified-placeholder",
+  "source_name": null,
+  "source_url": null,
+  "currency": "INR",
+  "unit": "built-up-square-foot",
+  "rates": {
+    "basic": 1800,
+    "standard": 2200,
+    "premium": 2800
+  },
+  "inclusions": ["Illustrative base construction allowance only"],
+  "exclusions": ["Land", "Site-specific foundation and retaining work", "Interiors and furniture", "Compound wall", "Borewell and septic", "Applicable taxes not already included"],
+  "production_note": "Do not present these values as verified current market rates until source documents and recent local quotations are recorded."
+}
