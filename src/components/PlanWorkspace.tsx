@@ -1,15 +1,15 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { Copy, Download, FilePlus2, History, Trash2 } from 'lucide-react';
 import { generatePlan, roomArea, type PlanModel } from '../lib/plan-model';
-import { RATE_CONFIGURATION, type FinishLevel } from '../lib/feasibility';
+import { calculateFeasibility, RATE_CONFIGURATION, type FinishLevel } from '../lib/feasibility';
 import { addSnapshot, createProject, deleteProject, duplicateProject, listProjects, renameProject, type LocalProject } from '../lib/projects';
 import { addApiSnapshot, authenticateApi, createApiProject, deleteAccountApi, deleteApiProject, duplicateApiProject, exportAccountApi, listApiProjects, listProfessionalReviews, requestProfessionalReview, renameApiProject, type ApiProject, type ProfessionalReviewRequest } from '../lib/api';
 import MassingView from './MassingView';
 
-type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string; finish: FinishLevel };
+type Props = { width: number; depth: number; bedrooms: number; floors: number; budget: number; location: string; finish: FinishLevel; buildingType: string };
 const palette: Record<string, string> = { living: '#dce8df', bedroom: '#e8e1d2', kitchen: '#dbe5ef', bathroom: '#e7dfe9', circulation: '#eeeeea' };
 
-export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, location, finish }: Props) {
+export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, location, finish, buildingType }: Props) {
   const [view, setView] = useState<'2d' | '3d'>('2d');
   const [alternative, setAlternative] = useState<PlanModel['metadata']['alternative']>('balanced');
   const [projects, setProjects] = useState<LocalProject[]>(() => listProjects());
@@ -29,7 +29,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
 
   async function save() {
     if (!plan) return;
-    const input = { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, location };
+    const input = { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, buildingType, location };
     createProject(input, plan);
     setProjects(listProjects());
     if (apiToken && apiBase) {
@@ -100,7 +100,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
     if (!apiToken || !apiBase || !plan) return;
     try {
       const updated = await addApiSnapshot(apiBase, apiToken, project.id, {
-        input: { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, location }, plan,
+        input: { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, buildingType, location }, plan,
       });
       setCloudProjects(current => current.map(p => p.id === project.id ? updated : p));
       setNotice(`New version saved to “${project.title}”.`);
@@ -122,15 +122,24 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
   }
   function exportBrief() {
     if (!plan) return;
+    const estimate = calculateFeasibility({ budget, plotWidthFt: width, plotDepthFt: depth, floors, bedrooms, location, buildingType, finish });
     const lines = [
       '# Juno Architects — Concept brief', '',
       '> Early concept only. Not a permit-ready, code-compliant, structural, or construction drawing. Have a qualified local architect/engineer review the design.',
       '', `- Location: ${location}`, `- Budget entered: ₹${budget.toLocaleString('en-IN')}`,
       `- Plot: ${width} ft × ${depth} ft (${(width * depth).toLocaleString('en-IN')} sq ft)`,
-      `- Bedrooms: ${bedrooms}`, `- Floors selected: ${floors}`, `- Finish preference: ${finish}`, `- Layout: ${plan.metadata.alternative}`, `- Model version: ${plan.metadata.generatedBy}`,
+      `- Bedrooms: ${bedrooms}`, `- Floors selected: ${floors}`, `- Building type: ${buildingType}`, `- Finish preference: ${finish}`, `- Layout: ${plan.metadata.alternative}`, `- Model version: ${plan.metadata.generatedBy}`,
       `- Pricing configuration: ${RATE_CONFIGURATION.id}`, `- Pricing status: ${RATE_CONFIGURATION.sourceStatus}`, `- Region: ${RATE_CONFIGURATION.region}`,
       `- Rate band: ₹${RATE_CONFIGURATION.rates[finish].low}–₹${RATE_CONFIGURATION.rates[finish].high} per sq ft (representative ₹${RATE_CONFIGURATION.rates[finish].representative})`,
       ...RATE_CONFIGURATION.benchmarkReferences.map(source => `- Pricing source: ${source.name} (${source.effective_date}) — ${source.url}`),
+      '', '## Indicative budget estimate',
+      `- Supported area range: ${estimate.areaLow.toFixed(0)}–${estimate.areaHigh.toFixed(0)} sq ft (budget and gross plot ceiling only)`,
+      `- Base construction allowance: ₹${estimate.baseConstruction.toFixed(0)}`,
+      `- Site and utilities allowance (5%): ₹${estimate.siteAllowance.toFixed(0)}`,
+      `- Professional/approval allowance (5%): ₹${estimate.professionalAllowance.toFixed(0)}`,
+      `- Contingency (10% of subtotal): ₹${estimate.contingency.toFixed(0)}`,
+      `- Indicative total: ₹${estimate.estimatedTotal.toFixed(0)}`,
+      ...estimate.assumptions.map(item => `- Assumption: ${item}`),
       '', '## Room schedule', '| Room | Width (ft) | Depth (ft) | Area (sq ft) |', '|---|---:|---:|---:|',
       ...plan.rooms.map(r => `| ${r.name} | ${r.width.toFixed(1)} | ${r.height.toFixed(1)} | ${roomArea(r).toFixed(1)} |`),
       '', `Total scheduled room area: ${plan.rooms.reduce((sum, r) => sum + roomArea(r), 0).toFixed(1)} sq ft.`,
@@ -153,7 +162,7 @@ export default function PlanWorkspace({ width, depth, bedrooms, floors, budget, 
   function newLocalVersion(p: LocalProject) {
     if (!plan) return;
     try {
-      addSnapshot(p.id, { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, location }, plan);
+      addSnapshot(p.id, { budget, plotWidthFt: width, plotDepthFt: depth, bedrooms, floors, finish, buildingType, location }, plan);
       setProjects(listProjects()); setNotice(`New version saved to “${p.title}”.`);
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not save a new version.'); }
   }
