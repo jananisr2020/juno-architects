@@ -136,7 +136,7 @@ export default function App() {
           <p className="results-lead">For {location.trim()}, based on the details you entered. These figures use an unverified planning rate and must be checked locally.</p>
           <div className="results-grid">
             <article className="result-card result-featured"><span className="result-label">Indicative area range (budget + plot ceiling)</span><strong>{Math.round(result.areaLow).toLocaleString('en-IN')}–{Math.round(result.areaHigh).toLocaleString('en-IN')} <small>sq ft</small></strong><p>Before site-specific constraints and local building-rule checks.</p></article>
-            <article className="result-card"><span className="result-label">Base construction allowance</span><strong>{money(result.baseConstruction)}</strong><p>At an illustrative {money(result.ratePerSqFt)} per sq ft.</p></article>
+            <article className="result-card"><span className="result-label">Base construction allowance</span><strong>{money(result.baseConstruction)}</strong><p>At {money(result.rateLow)}–{money(result.rateHigh)} per sq ft; midpoint {money(result.ratePerSqFt)}.</p></article>
             <article className="result-card"><span className="result-label">Estimated planning total</span><strong>{money(result.estimatedTotal)}</strong><p>Includes provisional allowances and contingency.</p></article>
           </div>
           <div className="breakdown">
@@ -146,10 +146,10 @@ export default function App() {
             <div><span>Contingency (10% of subtotal)</span><strong>{money(result.contingency)}</strong></div>
             <div className="breakdown-total"><span>Illustrative total</span><strong>{money(result.estimatedTotal)}</strong></div>
           </div>
-          <div className="warning-note"><ShieldCheck size={19} /><p><strong>Important:</strong> Rate is a placeholder planning assumption, not a verified current Coimbatore/Tamil Nadu quote. Land, unusual foundations, major retaining work, interiors, compound wall, borewell/septic and other site-specific items may be excluded. Building type does not yet change the rate. Local rules, setbacks, FSI and approvals need qualified local review.</p></div>
+          <div className="warning-note"><ShieldCheck size={19} /><p><strong>Important:</strong> Rates are published market research ranges, not independently verified contractor quotations. Confirm today's scope and prices with multiple local contractors. Land, unusual foundations, major retaining work, interiors, compound wall, borewell/septic and other site-specific items may be excluded. Building type does not yet change the rate. Local rules, setbacks, FSI and approvals need qualified local review.</p></div>
           <div className="rate-provenance">
             <strong>Rate provenance</strong>
-            <p>Configuration {result.rateVersion} · {result.rateStatus} · Region: {RATE_CONFIGURATION.region}. The references below are government benchmark documents, not proof that the placeholder rates match today's private residential quotes.</p>
+            <p>Configuration {result.rateVersion} · {result.rateStatus} · Region: {RATE_CONFIGURATION.region}. Market ranges and government schedules have different scopes; these links do not constitute a live quote or a guarantee of current pricing.</p>
             <ul>{RATE_CONFIGURATION.benchmarkReferences.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.name}</a> <span>({source.effective_date}; {source.scope})</span></li>)}</ul>
           </div>
           <button className="secondary-button" onClick={() => { setSubmitted(false); document.getElementById('planner')?.scrollIntoView({ behavior: 'smooth' }); }}>Adjust my details <ArrowDownRight size={16} /></button>
