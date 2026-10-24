@@ -66,14 +66,14 @@ Only mark tasks complete when the change exists in the repository and verificati
 - Implemented in repository: 44
 - Remaining or externally blocked: 3 (T-039 real-quote pilot; T-045 live deployment/rollback verification; T-046 monetization evaluation after pilot validation).
 - Milestones 1–3 are implemented; Milestone 4 is implemented except the real-quote pilot; Milestone 5 has deployment configuration, account export/deletion, automated security checks and report support, while live deployment and post-pilot monetization remain pending.
-- Latest CI and CodeQL workflows are running; do not treat the current branch as release-ready until the latest run results are green.
+- CI run 40111655721 passed on commit 95e836884dc21febfa1c8530af1713a15d699f28: frontend tests/build, npm audit, bundle budgets, accessibility smoke checks, backend tests and Alembic migration validation are green. CodeQL analysis for that commit is still running; a passing CI build does not mean deployment is complete.
 - Current milestone: 4–5 verification and pilot readiness.
 
 ### Evidence added in this pass
 - Milestone 1: shared versioned low/mid/high Coimbatore market bands from dated third-party publications, explicit unverified-quote status, PWD source links, area uncertainty range, strict input validation, itemized allowances and SEO configuration.
 - Milestone 2: canonical feet-based room geometry, deterministic compact/balanced/open alternatives, boundary/overlap validation, dimensioned SVG, isometric 3D massing, room schedule, tests and Markdown report export with versioned pricing assumptions.
 - Milestone 3: PostgreSQL-compatible SQLAlchemy schema, Alembic migrations, Argon2id hashes, signed short-lived tokens, per-IP rate limits, owner-scoped CRUD/snapshots, account export/deletion, professional review workflow, readiness checks, frontend API client, Docker local stack and Render API blueprint.
-- CI: frontend unit tests, TypeScript build, compressed bundle budgets, accessibility smoke checks, Python API tests, migration execution, CodeQL and dependency review are configured. The latest run result is still pending.
+- CI: frontend unit tests, TypeScript build, compressed bundle budgets, accessibility smoke checks, npm audit, Python API tests and migration execution passed on the last code-equivalent revision. CodeQL and dependency review workflows are configured.
 
 ### Release limitations that remain
 - Cloud account mode requires a deployed API, private PostgreSQL database, a production JWT secret, and exact FRONTEND_ORIGINS / VITE_API_BASE_URL configuration.
