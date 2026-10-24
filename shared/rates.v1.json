@@ -1,18 +1,30 @@
 {
   "schema_version": 1,
-  "configuration_id": "illustrative-2026-10-v1",
+  "configuration_id": "market-range-2026-10-v2",
   "region": "Tamil Nadu, India",
   "effective_date": null,
   "checked_date": "2026-10-24",
-  "source_status": "unverified-placeholder",
-  "source_name": null,
-  "source_url": null,
+  "source_status": "third-party-market-range-not-verified",
+  "source_name": "Indicative third-party Coimbatore market range research; not verified contractor quotations",
+  "source_url": "https://infraura.com/house-construction-cost-coimbatore/",
   "currency": "INR",
   "unit": "built-up-square-foot",
   "rates": {
-    "basic": 1800,
-    "standard": 2200,
-    "premium": 2800
+    "basic": {
+      "low": 1500,
+      "high": 1800,
+      "representative": 1650
+    },
+    "standard": {
+      "low": 1850,
+      "high": 2600,
+      "representative": 2225
+    },
+    "premium": {
+      "low": 2550,
+      "high": 4000,
+      "representative": 3275
+    }
   },
   "inclusions": [
     "Illustrative base construction allowance only"
@@ -25,19 +37,31 @@
     "Borewell and septic",
     "Applicable taxes not already included"
   ],
-  "production_note": "Benchmark documents are identified, but the placeholder rates below have not been derived from the documents or validated against dated Coimbatore private-contractor quotes. Do not present them as verified current market rates.",
+  "production_note": "These are indicative third-party published market ranges, not independently verified contractor quotations and not an official PWD-approved private-home rate. The selected representative value is the midpoint of each band and is for planning only. Verify scope, taxes, location, materials, structural system and inclusions with multiple current local quotations.",
   "benchmark_references": [
     {
-      "name": "Tamil Nadu Government Schedule of Rates 2025-2026, Volume I",
-      "effective_date": "2025-07-22",
-      "url": "https://tnpwdea.org/files/tn-pwd-13-09-2025-05-30-44-133.pdf",
-      "scope": "PWD, Highways and WRD item rates; basic rates exclude GST; Coimbatore Corporation labour/work allowance notes apply."
+      "name": "House Construction Cost in Coimbatore (2026)",
+      "effective_date": "2026-07-23",
+      "url": "https://infraura.com/house-construction-cost-coimbatore/",
+      "scope": "Published indicative turnkey market bands: basic ₹1,500–₹2,100; standard ₹1,850–₹2,600; premium ₹2,550–₹4,000+ per sq ft. Not a verified quote."
     },
     {
-      "name": "Plinth Area Rates for Rough Cost Estimates 2025-2026",
+      "name": "Construction Cost in Coimbatore (updated 12 Aug 2026)",
+      "effective_date": "2026-08-12",
+      "url": "https://www.infralens.in/prices/coimbatore",
+      "scope": "Third-party standard rate range ₹1,895–₹2,454 per sq ft; scope and independent verification not established."
+    },
+    {
+      "name": "Tamil Nadu PWD Schedule of Rates 2025–2026, Volume I",
+      "effective_date": "2025-07-22",
+      "url": "https://tnpwdea.org/files/tn-pwd-13-09-2025-05-30-44-133.pdf",
+      "scope": "Government item-rate reference, not directly interchangeable with private turnkey rates; excludes GST and other taxes."
+    },
+    {
+      "name": "Plinth Area Rates for Rough Cost Estimates 2025–2026",
       "effective_date": "2025-08-01",
       "url": "https://tnpwdea.org/files/tn-pwd-13-09-2025-05-44-43-648.pdf",
-      "scope": "Rough cost benchmark reference; detailed rate table not transcribed into the app."
+      "scope": "Official public-works rough estimate reference; must match construction type and item inclusions before applying."
     }
   ],
   "configuration_date": "2026-10-24"
