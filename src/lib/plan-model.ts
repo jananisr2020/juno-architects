@@ -77,6 +77,13 @@ export function validatePlan(plan: PlanModel): string[] {
     if (![r.x, r.y, r.width, r.height].every(Number.isFinite) || r.width <= 0 || r.height <= 0) errors.push(`Rectangle ${i} has invalid dimensions.`);
     if (r.x < -EPSILON || r.y < -EPSILON || r.x + r.width > width + EPSILON || r.y + r.height > depth + EPSILON) errors.push(`Rectangle ${i} exceeds plot boundaries.`);
   }
+  for (const room of plan.rooms) {
+    if (room.x < plan.building.x - EPSILON || room.y < plan.building.y - EPSILON ||
+        room.x + room.width > plan.building.x + plan.building.width + EPSILON ||
+        room.y + room.height > plan.building.y + plan.building.height + EPSILON) {
+      errors.push('Room ' + room.id + ' exceeds building boundaries.');
+    }
+  }
   const ids = plan.rooms.map(r => r.id);
   if (new Set(ids).size !== ids.length) errors.push('Room IDs must be unique.');
   for (let i = 0; i < plan.rooms.length; i++) for (let j = i + 1; j < plan.rooms.length; j++) {
