@@ -82,3 +82,16 @@ Only mark tasks complete when the change exists in the repository and verificati
 
 ## Definition of done
 A task is complete only when code/docs are committed and tests pass or limitations are documented. Never claim deployment without a verified URL and health check.
+
+## Implementation pass 3 — release verification tooling (2026-10-25)
+
+- [x] T-048 Add a static release-artifact smoke check for the built Vite output and expose it as `npm run check:release`.
+- [ ] T-039 remains blocked until real Tamil Nadu contractor quotes are collected and compared.
+- [ ] T-045 remains externally blocked until Netlify permits deployment; then verify the live URL, routes, assets, and rollback procedure.
+- [ ] T-046 remains deferred until pilot validation and actual customer willingness-to-pay evidence exist.
+
+### Verification notes
+- Commit `7222d7c59670116f7665dbdc24cfcff1557f730b` adds `scripts/check-release.mjs`.
+- Commit `2f14a8f9c39fd30ab84a2a9282b22861e3740eb7` adds the `check:release` package script.
+- Run `npm run build`, then `npm run check:release`. The release check validates `dist/index.html`, viewport/title/asset references, and the generated JavaScript/CSS bundles.
+- This artifact check is not a live deployment check and does not verify API/database availability, code compliance, or professional approval.
